@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // DeviceRepo Collection
@@ -16,33 +15,37 @@ type DeviceRepo struct {
 	DB *mongo.Collection
 }
 
+// GetDevices get all devices
+func (d *DeviceRepo) GetDevices() ([]*models.Device, error) {
+	var devices []*models.Device
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	cursor, err := d.DB.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	if err := cursor.All(ctx, &devices); err != nil {
+		return nil, err
+	}
+	return devices, nil
+}
+
 // GetDevicesByRoomID get all devices in a Room by roomID
 func (d *DeviceRepo) GetDevicesByRoomID(roomID string) ([]*models.Device, error) {
 	var devices []*models.Device
 
-	id, err := primitive.ObjectIDFromHex(roomID)
-	if err != nil {
-		return devices, err
-	}
-	q := bson.M{"room": id}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	cur, err := d.DB.Find(ctx, q, options.Find())
+
+	cursor, err := d.DB.Find(ctx, bson.M{"room": roomID})
 	if err != nil {
 		return nil, err
 	}
-	for cur.Next(ctx) {
-		var device *models.Device
-		err = cur.Decode(&device)
-		if err != nil {
-			return nil, err
-		}
-		devices = append(devices, device)
-	}
-	if err = cur.Err(); err != nil {
+	if err := cursor.All(ctx, &devices); err != nil {
 		return nil, err
 	}
-	cur.Close(ctx)
 	return devices, nil
 }
 
@@ -52,7 +55,7 @@ func (d *DeviceRepo) CreateDevice(roomID primitive.ObjectID, device *models.Devi
 	defer cancel()
 	_, err := d.DB.InsertOne(ctx, device)
 	if err != nil {
-		return device, err
+		return nil, err
 	}
 	return device, nil
 }
