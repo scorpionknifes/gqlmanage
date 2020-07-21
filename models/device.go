@@ -3,14 +3,15 @@ package models
 import "time"
 
 type Device struct {
-	ID           string    `json:"id"`
-	Room         *Room     `json:"room"`
-	Name         string    `json:"name"`
-	Model        string    `json:"model"`
-	MacAddress   string    `json:"macAddress"`
-	Memo         string    `json:"memo"`
-	SerialNumber string    `json:"serialNumber"`
-	Status       int       `json:"status"`
-	CreatedDate  time.Time `json:"createdDate"`
-	LastModified time.Time `json:"lastModified"`
+	ID           string    `json:"id" bson:"_id,omitempty"`
+	Room         *Room     `json:"room" bson:"room"`
+	Name         string    `json:"name" bson:"name"`
+	Model        string    `json:"model" bson:"model"`
+	MacAddress   string    `json:"macAddress" bson:"mac_address"`
+	Memo         string    `json:"memo" bson:"memo"`
+	SerialNumber string    `json:"serialNumber" bson:"serial_number"`
+	Status       int       `json:"status" bson:"status"`
+	Type         int       `json:"type" bson:"type"`
+	CreatedDate  time.Time `json:"createdDate" bson:"type"`
+	LastModified time.Time `json:"lastModified" bson:"created_date"`
 }

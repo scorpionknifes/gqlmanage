@@ -57,6 +57,7 @@ type ComplexityRoot struct {
 		Room         func(childComplexity int) int
 		SerialNumber func(childComplexity int) int
 		Status       func(childComplexity int) int
+		Type         func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -198,6 +199,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Device.Status(childComplexity), true
+
+	case "Device.type":
+		if e.complexity.Device.Type == nil {
+			break
+		}
+
+		return e.complexity.Device.Type(childComplexity), true
 
 	case "Mutation.addDevice":
 		if e.complexity.Mutation.AddDevice == nil {
@@ -460,6 +468,7 @@ type Device {
   memo: String!
   serialNumber: String!
   status: Int!
+  type: Int!
   createdDate: Time!
   lastModified: Time!
 }
@@ -878,6 +887,40 @@ func (ec *executionContext) _Device_status(ctx context.Context, field graphql.Co
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Device_type(ctx context.Context, field graphql.CollectedField, obj *models.Device) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Device",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2980,6 +3023,11 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "status":
 			out.Values[i] = ec._Device_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "type":
+			out.Values[i] = ec._Device_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}

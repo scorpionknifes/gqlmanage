@@ -28,6 +28,7 @@ type Device {
   memo: String!
   serialNumber: String!
   status: Int!
+  type: Int!
   createdDate: Time!
   lastModified: Time!
 }
