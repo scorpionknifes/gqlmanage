@@ -4,8 +4,8 @@ schema:
 
 # Where should the generated server code go?
 exec:
-  filename: generated.go
-  package: gqlopenhab
+  filename: graphql/generated.go
+  package: graphql
 
 # Uncomment to enable federation
 # federation:
@@ -14,13 +14,13 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: models_gen.go
-  package: gqlopenhab
+  filename: graphql/models_gen.go
+  package: graphql
 
 # Where should the resolver implementations go?
 resolver:
-  filename: resolver.go
-  package: gqlopenhab
+  filename: graphql/resolver.go
+  package: graphql
 
 # Optional: turn on use `gqlgen:"fieldName"` tags in your models
 # struct_tag: json

@@ -1,6 +1,6 @@
 //go:generate go run github.com/99designs/gqlgen
 
-package gqlopenhab
+package graphql
 
 import (
 	"context"
