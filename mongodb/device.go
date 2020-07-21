@@ -32,14 +32,30 @@ func (d *DeviceRepo) GetDevices() ([]*models.Device, error) {
 	return devices, nil
 }
 
-// GetDevicesByRoomID get all devices in a Room by roomID
-func (d *DeviceRepo) GetDevicesByRoomID(roomID string) ([]*models.Device, error) {
+// GetDevice get one device
+func (d *DeviceRepo) GetDevice(id string) (*models.Device, error) {
+	var device *models.Device
+
+	ID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	result := d.DB.FindOne(ctx, bson.M{"_id": ID})
+	err = result.Decode(device)
+	return device, err
+}
+
+// GetDevicesByDeviceID get all devices in a Device by deviceID
+func (d *DeviceRepo) GetDevicesByDeviceID(deviceID string) ([]*models.Device, error) {
 	var devices []*models.Device
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cursor, err := d.DB.Find(ctx, bson.M{"room": roomID})
+	cursor, err := d.DB.Find(ctx, bson.M{"room_id": deviceID})
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +66,7 @@ func (d *DeviceRepo) GetDevicesByRoomID(roomID string) ([]*models.Device, error)
 }
 
 // CreateDevice create device
-func (d *DeviceRepo) CreateDevice(roomID primitive.ObjectID, device *models.Device) (*models.Device, error) {
+func (d *DeviceRepo) CreateDevice(deviceID primitive.ObjectID, device *models.Device) (*models.Device, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	_, err := d.DB.InsertOne(ctx, device)

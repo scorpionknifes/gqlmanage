@@ -34,11 +34,11 @@ func (r *mutationResolver) AddDevice(ctx context.Context, input *AddDeviceInput)
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.UserRepo.GetUsers()
 }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.UserRepo.GetUser(id)
 }
 
 func (r *queryResolver) Rooms(ctx context.Context) ([]*models.Room, error) {

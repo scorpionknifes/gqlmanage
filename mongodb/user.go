@@ -32,21 +32,20 @@ func (d *UserRepo) GetUsers() ([]*models.User, error) {
 	return users, nil
 }
 
-// GetUsersByRoomID get all users in a Room by roomID
-func (d *UserRepo) GetUsersByRoomID(roomID string) ([]*models.User, error) {
-	var users []*models.User
+// GetUser get user by id
+func (d *UserRepo) GetUser(id string) (*models.User, error) {
+	var user *models.User
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	cursor, err := d.DB.Find(ctx, bson.M{"room": roomID})
+	ID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
-	if err := cursor.All(ctx, &users); err != nil {
-		return nil, err
-	}
-	return users, nil
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	result := d.DB.FindOne(ctx, bson.M{"_id": ID})
+	err = result.Decode(user)
+	return user, err
 }
 
 // CreateUser create user
