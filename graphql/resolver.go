@@ -14,7 +14,8 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 // Resolver struct
-type Resolver struct{}
+type Resolver struct {
+}
 
 func (r *mutationResolver) Login(ctx context.Context, email *string, password *string) (*Token, error) {
 	panic(fmt.Errorf("not implemented"))
@@ -28,7 +29,11 @@ func (r *mutationResolver) AddDevice(ctx context.Context, input *AddDeviceInput)
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Hotel(ctx context.Context) (*models.User, error) {
+func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) User(ctx context.Context, id string) (*models.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -41,6 +46,10 @@ func (r *queryResolver) Room(ctx context.Context, id string) (*models.Room, erro
 }
 
 func (r *queryResolver) Devices(ctx context.Context) ([]*models.Device, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Device(ctx context.Context, id string) (*models.Device, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
