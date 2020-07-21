@@ -11,10 +11,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// DeviceRepo Collection
 type DeviceRepo struct {
 	DB *mongo.Collection
 }
 
+// GetDevicesByRoomID get all devices in a Room by roomID
 func (d *DeviceRepo) GetDevicesByRoomID(roomID string) ([]*models.Device, error) {
 	var devices []*models.Device
 
@@ -42,4 +44,15 @@ func (d *DeviceRepo) GetDevicesByRoomID(roomID string) ([]*models.Device, error)
 	}
 	cur.Close(ctx)
 	return devices, nil
+}
+
+// CreateDevice create device
+func (d *DeviceRepo) CreateDevice(roomID primitive.ObjectID, device *models.Device) (*models.Device, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	_, err := d.DB.InsertOne(ctx, device)
+	if err != nil {
+		return device, err
+	}
+	return device, nil
 }

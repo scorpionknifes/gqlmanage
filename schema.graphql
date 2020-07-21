@@ -2,7 +2,9 @@
 scalar Time
 
 type User {
+  id: ID!
   name: String!
+  username: String!
   location: String!
   abbr: String!
   email: String!
@@ -58,10 +60,12 @@ input AddDeviceInput {
 }
 
 type Query {
-  hotel: User
+  users: [User!]!
+  user(id: ID!): User!
   rooms: [Room!]!
   room(id: ID!): Room!
   devices: [Device!]!
+  device(id: ID!): Device!
 }
 
 type Mutation {
