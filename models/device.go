@@ -2,9 +2,9 @@ package models
 
 import "time"
 
+// Device struct for one device
 type Device struct {
 	ID           string    `json:"id" bson:"_id,omitempty"`
-	Room         *Room     `json:"room" bson:"room"`
 	Name         string    `json:"name" bson:"name"`
 	Model        string    `json:"model" bson:"model"`
 	MacAddress   string    `json:"macAddress" bson:"mac_address"`

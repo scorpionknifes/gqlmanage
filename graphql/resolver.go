@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/scorpionknifes/gqlopenhab/models"
+	"github.com/scorpionknifes/gqlopenhab/mongodb"
 )
 
 // This file will not be regenerated automatically.
@@ -15,6 +16,9 @@ import (
 
 // Resolver struct
 type Resolver struct {
+	DeviceRepo mongodb.DeviceRepo
+	RoomRepo   mongodb.RoomRepo
+	UserRepo   mongodb.UserRepo
 }
 
 func (r *mutationResolver) Login(ctx context.Context, email *string, password *string) (*Token, error) {
