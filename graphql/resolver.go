@@ -42,27 +42,27 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 }
 
 func (r *queryResolver) Rooms(ctx context.Context) ([]*models.Room, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.RoomRepo.GetRooms()
 }
 
 func (r *queryResolver) Room(ctx context.Context, id string) (*models.Room, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.RoomRepo.GetRoom(id)
 }
 
 func (r *queryResolver) Devices(ctx context.Context) ([]*models.Device, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.DeviceRepo.GetDevices()
 }
 
 func (r *queryResolver) Device(ctx context.Context, id string) (*models.Device, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.DeviceRepo.GetDevice(id)
 }
 
 func (r *deviceResolver) Room(ctx context.Context, obj *models.Device) (*models.Room, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.RoomRepo.GetRoom(obj.RoomID)
 }
 
 func (r *roomResolver) Devices(ctx context.Context, obj *models.Room) ([]*models.Device, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.DeviceRepo.GetDevicesByDeviceID(obj.ID)
 }
 
 // Mutation returns MutationResolver implementation.
