@@ -1,7 +1,7 @@
 # GraphQL
 scalar Time
 
-type Project {
+type User {
   name: String!
   location: String!
   abbr: String!
@@ -57,7 +57,7 @@ input AddDeviceInput {
 }
 
 type Query {
-  hotel: Project
+  hotel: User
   rooms: [Room!]!
   room(id: ID!): Room!
   devices: [Device!]!
