@@ -1,0 +1,70 @@
+# GraphQL
+scalar Time
+
+type Project {
+  name: String!
+  location: String!
+  abbr: String!
+  email: String!
+  openhab: String!
+}
+
+type Room {
+  id: ID!
+  roomNumber: String!
+  memo: String!
+  devices: [Device!]!
+  username: String!
+  password: String!
+  createdDate: Time!
+}
+
+type Device {
+  id: ID!
+  room: Room!
+  name: String!
+  model: String!
+  macAddress: String!
+  memo: String!
+  serialNumber: String!
+  status: Int!
+  createdDate: Time!
+  lastModified: Time!
+}
+
+type Token {
+  token: String!
+  expireAt: Int!
+}
+
+input CreateRoomInput {
+  roomNumber: String!
+  memo: String!
+  devices: [CreateDeviceInput]
+}
+
+input CreateDeviceInput {
+  name: String!
+  model: String!
+  macAddress: String!
+  memo: String!
+  serialNumber: String!
+}
+
+input AddDeviceInput {
+  roomID: ID!
+  device: CreateDeviceInput!
+}
+
+type Query {
+  hotel: Project
+  rooms: [Room!]!
+  room(id: ID!): Room!
+  devices: [Device!]!
+}
+
+type Mutation {
+  login(email: String, password: String): Token!
+  createRoom(input: CreateRoomInput): Room
+  addDevice(input: AddDeviceInput): Device
+}
