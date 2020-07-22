@@ -45,7 +45,19 @@ func DataMiddleware(db *DBLoader, next http.Handler) http.Handler {
 				if err := cursor.All(ctx, &devices); err != nil {
 					return nil, []error{err}
 				}
-				return devices, nil
+				d := make(map[string]*models.Device, len(ids))
+
+				for _, device := range devices {
+					d[device.ID] = device
+				}
+
+				result := make([]*models.Device, len(ids))
+
+				for i, id := range ids {
+					result[i] = d[id]
+				}
+
+				return result, nil
 			},
 		}
 		roomloader := RoomLoader{
@@ -66,7 +78,19 @@ func DataMiddleware(db *DBLoader, next http.Handler) http.Handler {
 				if err := cursor.All(ctx, &rooms); err != nil {
 					return nil, []error{err}
 				}
-				return rooms, nil
+				r := make(map[string]*models.Room, len(ids))
+
+				for _, room := range rooms {
+					r[room.ID] = room
+				}
+
+				result := make([]*models.Room, len(ids))
+
+				for i, id := range ids {
+					result[i] = r[id]
+				}
+
+				return result, nil
 			},
 		}
 		ctx := context.WithValue(r.Context(), deviceloaderKey, &deviceloader)
