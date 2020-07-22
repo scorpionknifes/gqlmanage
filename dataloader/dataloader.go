@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/scorpionknifes/gqlopenhab/models"
+	"github.com/scorpionknifes/gqlopenhab/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type key string
@@ -18,8 +18,14 @@ const (
 	roomloaderKey   key = "roomloader"
 )
 
-// DeviceMiddleware dataloader Middleware
-func DeviceMiddleware(db *mongo.Collection, next http.Handler) http.Handler {
+// DBLoader for middleware
+type DBLoader struct {
+	DeviceRepo mongodb.DeviceRepo
+	RoomRepo   mongodb.RoomRepo
+}
+
+// DataMiddleware dataloader Middleware
+func DataMiddleware(db *DBLoader, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		deviceloader := DeviceLoader{
 			maxBatch: 100,
@@ -32,7 +38,7 @@ func DeviceMiddleware(db *mongo.Collection, next http.Handler) http.Handler {
 				}
 				ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 				defer cancel()
-				cursor, err := db.Find(ctx, bson.M{"_id": bson.M{"$in": oids}})
+				cursor, err := db.DeviceRepo.DB.Find(ctx, bson.M{"_id": bson.M{"$in": oids}})
 				if err != nil {
 					return nil, []error{err}
 				}
@@ -42,15 +48,6 @@ func DeviceMiddleware(db *mongo.Collection, next http.Handler) http.Handler {
 				return devices, nil
 			},
 		}
-
-		ctx := context.WithValue(r.Context(), deviceloaderKey, &deviceloader)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
-// RoomMiddleware dataloader Middleware
-func RoomMiddleware(db *mongo.Collection, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		roomloader := RoomLoader{
 			maxBatch: 100,
 			wait:     1 * time.Millisecond,
@@ -62,7 +59,7 @@ func RoomMiddleware(db *mongo.Collection, next http.Handler) http.Handler {
 				}
 				ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 				defer cancel()
-				cursor, err := db.Find(ctx, bson.M{"_id": bson.M{"$in": oids}})
+				cursor, err := db.RoomRepo.DB.Find(ctx, bson.M{"_id": bson.M{"$in": oids}})
 				if err != nil {
 					return nil, []error{err}
 				}
@@ -72,7 +69,18 @@ func RoomMiddleware(db *mongo.Collection, next http.Handler) http.Handler {
 				return rooms, nil
 			},
 		}
-		ctx := context.WithValue(r.Context(), roomloaderKey, &roomloader)
+		ctx := context.WithValue(r.Context(), deviceloaderKey, &deviceloader)
+		ctx = context.WithValue(ctx, roomloaderKey, &roomloader)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+// GetDeviceLoader get device dataloader
+func GetDeviceLoader(ctx context.Context) *DeviceLoader {
+	return ctx.Value(deviceloaderKey).(*DeviceLoader)
+}
+
+// GetRoomLoader get device dataloader
+func GetRoomLoader(ctx context.Context) *RoomLoader {
+	return ctx.Value(roomloaderKey).(*RoomLoader)
 }
