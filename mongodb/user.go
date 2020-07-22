@@ -64,3 +64,14 @@ func (d *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	user.ID = oid.Hex()
 	return user, nil
 }
+
+// UpdateUser update a User by id
+func (d *UserRepo) UpdateUser(id string, user *models.User) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	_, err := d.DB.UpdateOne(ctx, bson.M{"_id": id}, user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}

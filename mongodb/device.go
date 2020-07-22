@@ -49,7 +49,7 @@ func (d *DeviceRepo) GetDevice(id string) (*models.Device, error) {
 	return device, err
 }
 
-// GetDevicesByDeviceID get all devices in a Device by deviceID
+// GetDevicesByRoomID get all devices in a Device by deviceID
 func (d *DeviceRepo) GetDevicesByRoomID(deviceID string) ([]*models.Device, error) {
 	var devices []*models.Device
 
@@ -79,5 +79,16 @@ func (d *DeviceRepo) CreateDevice(device *models.Device) (*models.Device, error)
 		return nil, errors.New("Bad ID")
 	}
 	device.ID = oid.Hex()
+	return device, nil
+}
+
+// UpdateDevice update a device by id
+func (d *DeviceRepo) UpdateDevice(id string, device *models.Device) (*models.Device, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	_, err := d.DB.UpdateOne(ctx, bson.M{"_id": id}, device)
+	if err != nil {
+		return nil, err
+	}
 	return device, nil
 }

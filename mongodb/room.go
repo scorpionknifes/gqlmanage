@@ -64,3 +64,14 @@ func (d *RoomRepo) CreateRoom(room *models.Room) (*models.Room, error) {
 	room.ID = oid.Hex()
 	return room, nil
 }
+
+// UpdateRoom update a room by id
+func (d *RoomRepo) UpdateRoom(id string, room *models.Room) (*models.Room, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	_, err := d.DB.UpdateOne(ctx, bson.M{"_id": id}, room)
+	if err != nil {
+		return nil, err
+	}
+	return room, nil
+}
