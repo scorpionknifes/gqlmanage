@@ -49,7 +49,7 @@ func (d *DeviceRepo) GetDevice(id string) (*models.Device, error) {
 }
 
 // GetDevicesByDeviceID get all devices in a Device by deviceID
-func (d *DeviceRepo) GetDevicesByDeviceID(deviceID string) ([]*models.Device, error) {
+func (d *DeviceRepo) GetDevicesByRoomID(deviceID string) ([]*models.Device, error) {
 	var devices []*models.Device
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

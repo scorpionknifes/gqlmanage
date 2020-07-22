@@ -33,7 +33,17 @@ func (r *mutationResolver) UpdateRoom(ctx context.Context, id string, input Room
 }
 
 func (r *mutationResolver) CreateDevice(ctx context.Context, input DeviceInput) (*models.Device, error) {
-	panic(fmt.Errorf("not implemented"))
+	device := &models.Device{
+		RoomID:       input.RoomID,
+		Name:         input.Name,
+		Model:        input.Model,
+		MacAddress:   input.MacAddress,
+		Memo:         input.Memo,
+		SerialNumber: input.SerialNumber,
+		Status:       input.Status,
+		Type:         input.Type,
+	}
+	return r.DeviceRepo.CreateDevice(device)
 }
 
 func (r *mutationResolver) UpdateDevice(ctx context.Context, id string, input DeviceInput) (*models.Device, error) {
