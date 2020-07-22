@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/scorpionknifes/gqlopenhab/models"
@@ -69,9 +70,14 @@ func (d *DeviceRepo) GetDevicesByRoomID(deviceID string) ([]*models.Device, erro
 func (d *DeviceRepo) CreateDevice(device *models.Device) (*models.Device, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	_, err := d.DB.InsertOne(ctx, device)
+	result, err := d.DB.InsertOne(ctx, device)
 	if err != nil {
 		return nil, err
 	}
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New("Bad ID")
+	}
+	device.ID = oid.Hex()
 	return device, nil
 }

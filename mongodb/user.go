@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/scorpionknifes/gqlopenhab/models"
@@ -52,9 +53,14 @@ func (d *UserRepo) GetUser(id string) (*models.User, error) {
 func (d *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	_, err := d.DB.InsertOne(ctx, user)
+	result, err := d.DB.InsertOne(ctx, user)
 	if err != nil {
 		return nil, err
 	}
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New("Bad ID")
+	}
+	user.ID = oid.Hex()
 	return user, nil
 }

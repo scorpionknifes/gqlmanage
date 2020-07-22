@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/scorpionknifes/gqlopenhab/models"
@@ -52,9 +53,14 @@ func (d *RoomRepo) GetRoom(id string) (*models.Room, error) {
 func (d *RoomRepo) CreateRoom(room *models.Room) (*models.Room, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	_, err := d.DB.InsertOne(ctx, room)
+	result, err := d.DB.InsertOne(ctx, room)
 	if err != nil {
 		return nil, err
 	}
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New("Bad ID")
+	}
+	room.ID = oid.Hex()
 	return room, nil
 }
