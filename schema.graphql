@@ -40,23 +40,37 @@ type Token {
   expireAt: Int!
 }
 
-input CreateRoomInput {
-  roomNumber: String!
-  memo: String!
-  devices: [CreateDeviceInput]
+input LoginInput {
+  username: String!
+  password: String!
 }
 
-input CreateDeviceInput {
+input UserInput {
+  name: String!
+  username: String!
+  password: String!
+  location: String!
+  abbr: String!
+  email: String!
+  openhab: String!
+}
+
+input RoomInput {
+  roomNumber: String!
+  memo: String!
+  username: String!
+  password: String!
+}
+
+input DeviceInput {
+  roomID: String!
   name: String!
   model: String!
   macAddress: String!
   memo: String!
   serialNumber: String!
-}
-
-input AddDeviceInput {
-  roomID: ID!
-  device: CreateDeviceInput!
+  status: Int!
+  type: Int!
 }
 
 type Query {
@@ -69,7 +83,11 @@ type Query {
 }
 
 type Mutation {
-  login(email: String, password: String): Token!
-  createRoom(input: CreateRoomInput): Room
-  addDevice(input: AddDeviceInput): Device
+  login(input: LoginInput!): Token!
+  createRoom(input: RoomInput!): Room!
+  updateRoom(id: ID!, input: RoomInput!): Room!
+  createDevice(input: DeviceInput!): Device!
+  updateDevice(id: ID!, input: DeviceInput!): Device!
+  createUser(input: UserInput!): User!
+  updateUser(id: ID!, input: UserInput!): User!
 }

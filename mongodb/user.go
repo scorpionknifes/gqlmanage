@@ -49,7 +49,7 @@ func (d *UserRepo) GetUser(id string) (*models.User, error) {
 }
 
 // CreateUser create user
-func (d *UserRepo) CreateUser(roomID primitive.ObjectID, user *models.User) (*models.User, error) {
+func (d *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	_, err := d.DB.InsertOne(ctx, user)

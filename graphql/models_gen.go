@@ -2,26 +2,40 @@
 
 package graphql
 
-type AddDeviceInput struct {
-	RoomID string             `json:"roomID"`
-	Device *CreateDeviceInput `json:"device"`
-}
-
-type CreateDeviceInput struct {
+type DeviceInput struct {
+	RoomID       string `json:"roomID"`
 	Name         string `json:"name"`
 	Model        string `json:"model"`
 	MacAddress   string `json:"macAddress"`
 	Memo         string `json:"memo"`
 	SerialNumber string `json:"serialNumber"`
+	Status       int    `json:"status"`
+	Type         int    `json:"type"`
 }
 
-type CreateRoomInput struct {
-	RoomNumber string               `json:"roomNumber"`
-	Memo       string               `json:"memo"`
-	Devices    []*CreateDeviceInput `json:"devices"`
+type LoginInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type RoomInput struct {
+	RoomNumber string `json:"roomNumber"`
+	Memo       string `json:"memo"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
 }
 
 type Token struct {
 	Token    string `json:"token"`
 	ExpireAt int    `json:"expireAt"`
+}
+
+type UserInput struct {
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Location string `json:"location"`
+	Abbr     string `json:"abbr"`
+	Email    string `json:"email"`
+	Openhab  string `json:"openhab"`
 }

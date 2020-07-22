@@ -61,9 +61,13 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddDevice  func(childComplexity int, input *AddDeviceInput) int
-		CreateRoom func(childComplexity int, input *CreateRoomInput) int
-		Login      func(childComplexity int, email *string, password *string) int
+		CreateDevice func(childComplexity int, input DeviceInput) int
+		CreateRoom   func(childComplexity int, input RoomInput) int
+		CreateUser   func(childComplexity int, input UserInput) int
+		Login        func(childComplexity int, input LoginInput) int
+		UpdateDevice func(childComplexity int, id string, input DeviceInput) int
+		UpdateRoom   func(childComplexity int, id string, input RoomInput) int
+		UpdateUser   func(childComplexity int, id string, input UserInput) int
 	}
 
 	Query struct {
@@ -105,9 +109,13 @@ type DeviceResolver interface {
 	Room(ctx context.Context, obj *models.Device) (*models.Room, error)
 }
 type MutationResolver interface {
-	Login(ctx context.Context, email *string, password *string) (*Token, error)
-	CreateRoom(ctx context.Context, input *CreateRoomInput) (*models.Room, error)
-	AddDevice(ctx context.Context, input *AddDeviceInput) (*models.Device, error)
+	Login(ctx context.Context, input LoginInput) (*Token, error)
+	CreateRoom(ctx context.Context, input RoomInput) (*models.Room, error)
+	UpdateRoom(ctx context.Context, id string, input RoomInput) (*models.Room, error)
+	CreateDevice(ctx context.Context, input DeviceInput) (*models.Device, error)
+	UpdateDevice(ctx context.Context, id string, input DeviceInput) (*models.Device, error)
+	CreateUser(ctx context.Context, input UserInput) (*models.User, error)
+	UpdateUser(ctx context.Context, id string, input UserInput) (*models.User, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*models.User, error)
@@ -213,17 +221,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Device.Type(childComplexity), true
 
-	case "Mutation.addDevice":
-		if e.complexity.Mutation.AddDevice == nil {
+	case "Mutation.createDevice":
+		if e.complexity.Mutation.CreateDevice == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_addDevice_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createDevice_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddDevice(childComplexity, args["input"].(*AddDeviceInput)), true
+		return e.complexity.Mutation.CreateDevice(childComplexity, args["input"].(DeviceInput)), true
 
 	case "Mutation.createRoom":
 		if e.complexity.Mutation.CreateRoom == nil {
@@ -235,7 +243,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateRoom(childComplexity, args["input"].(*CreateRoomInput)), true
+		return e.complexity.Mutation.CreateRoom(childComplexity, args["input"].(RoomInput)), true
+
+	case "Mutation.createUser":
+		if e.complexity.Mutation.CreateUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(UserInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -247,7 +267,43 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Login(childComplexity, args["email"].(*string), args["password"].(*string)), true
+		return e.complexity.Mutation.Login(childComplexity, args["input"].(LoginInput)), true
+
+	case "Mutation.updateDevice":
+		if e.complexity.Mutation.UpdateDevice == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateDevice_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateDevice(childComplexity, args["id"].(string), args["input"].(DeviceInput)), true
+
+	case "Mutation.updateRoom":
+		if e.complexity.Mutation.UpdateRoom == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateRoom_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateRoom(childComplexity, args["id"].(string), args["input"].(RoomInput)), true
+
+	case "Mutation.updateUser":
+		if e.complexity.Mutation.UpdateUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(UserInput)), true
 
 	case "Query.device":
 		if e.complexity.Query.Device == nil {
@@ -524,23 +580,37 @@ type Token {
   expireAt: Int!
 }
 
-input CreateRoomInput {
-  roomNumber: String!
-  memo: String!
-  devices: [CreateDeviceInput]
+input LoginInput {
+  username: String!
+  password: String!
 }
 
-input CreateDeviceInput {
+input UserInput {
+  name: String!
+  username: String!
+  password: String!
+  location: String!
+  abbr: String!
+  email: String!
+  openhab: String!
+}
+
+input RoomInput {
+  roomNumber: String!
+  memo: String!
+  username: String!
+  password: String!
+}
+
+input DeviceInput {
+  roomID: String!
   name: String!
   model: String!
   macAddress: String!
   memo: String!
   serialNumber: String!
-}
-
-input AddDeviceInput {
-  roomID: ID!
-  device: CreateDeviceInput!
+  status: Int!
+  type: Int!
 }
 
 type Query {
@@ -553,9 +623,13 @@ type Query {
 }
 
 type Mutation {
-  login(email: String, password: String): Token!
-  createRoom(input: CreateRoomInput): Room
-  addDevice(input: AddDeviceInput): Device
+  login(input: LoginInput!): Token!
+  createRoom(input: RoomInput!): Room!
+  updateRoom(id: ID!, input: RoomInput!): Room!
+  createDevice(input: DeviceInput!): Device!
+  updateDevice(id: ID!, input: DeviceInput!): Device!
+  createUser(input: UserInput!): User!
+  updateUser(id: ID!, input: UserInput!): User!
 }
 `, BuiltIn: false},
 }
@@ -565,12 +639,12 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_addDevice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createDevice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *AddDeviceInput
+	var arg0 DeviceInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalOAddDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐAddDeviceInput(ctx, tmp)
+		arg0, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐDeviceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -582,9 +656,23 @@ func (ec *executionContext) field_Mutation_addDevice_args(ctx context.Context, r
 func (ec *executionContext) field_Mutation_createRoom_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *CreateRoomInput
+	var arg0 RoomInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalOCreateRoomInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateRoomInput(ctx, tmp)
+		arg0, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐRoomInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 UserInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -596,22 +684,80 @@ func (ec *executionContext) field_Mutation_createRoom_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["email"]; ok {
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+	var arg0 LoginInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐLoginInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["email"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["password"]; ok {
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateDevice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["password"] = arg1
+	args["id"] = arg0
+	var arg1 DeviceInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐDeviceInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateRoom_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 RoomInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐRoomInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 UserInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -1105,7 +1251,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, args["email"].(*string), args["password"].(*string))
+		return ec.resolvers.Mutation().Login(rctx, args["input"].(LoginInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1146,21 +1292,24 @@ func (ec *executionContext) _Mutation_createRoom(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateRoom(rctx, args["input"].(*CreateRoomInput))
+		return ec.resolvers.Mutation().CreateRoom(rctx, args["input"].(RoomInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*models.Room)
 	fc.Result = res
-	return ec.marshalORoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, field.Selections, res)
+	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_addDevice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_updateRoom(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1176,7 +1325,7 @@ func (ec *executionContext) _Mutation_addDevice(ctx context.Context, field graph
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_addDevice_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_updateRoom_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1184,18 +1333,185 @@ func (ec *executionContext) _Mutation_addDevice(ctx context.Context, field graph
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddDevice(rctx, args["input"].(*AddDeviceInput))
+		return ec.resolvers.Mutation().UpdateRoom(rctx, args["id"].(string), args["input"].(RoomInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Room)
+	fc.Result = res
+	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createDevice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createDevice_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateDevice(rctx, args["input"].(DeviceInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*models.Device)
 	fc.Result = res
-	return ec.marshalODevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx, field.Selections, res)
+	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateDevice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateDevice_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateDevice(rctx, args["id"].(string), args["input"].(DeviceInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Device)
+	fc.Result = res
+	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(UserInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(UserInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3091,36 +3407,18 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAddDeviceInput(ctx context.Context, obj interface{}) (AddDeviceInput, error) {
-	var it AddDeviceInput
+func (ec *executionContext) unmarshalInputDeviceInput(ctx context.Context, obj interface{}) (DeviceInput, error) {
+	var it DeviceInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
 		switch k {
 		case "roomID":
 			var err error
-			it.RoomID, err = ec.unmarshalNID2string(ctx, v)
+			it.RoomID, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "device":
-			var err error
-			it.Device, err = ec.unmarshalNCreateDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCreateDeviceInput(ctx context.Context, obj interface{}) (CreateDeviceInput, error) {
-	var it CreateDeviceInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
 		case "name":
 			var err error
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
@@ -3151,14 +3449,50 @@ func (ec *executionContext) unmarshalInputCreateDeviceInput(ctx context.Context,
 			if err != nil {
 				return it, err
 			}
+		case "status":
+			var err error
+			it.Status, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+			it.Type, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateRoomInput(ctx context.Context, obj interface{}) (CreateRoomInput, error) {
-	var it CreateRoomInput
+func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (LoginInput, error) {
+	var it LoginInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRoomInput(ctx context.Context, obj interface{}) (RoomInput, error) {
+	var it RoomInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3175,9 +3509,69 @@ func (ec *executionContext) unmarshalInputCreateRoomInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "devices":
+		case "username":
 			var err error
-			it.Devices, err = ec.unmarshalOCreateDeviceInput2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx, v)
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (UserInput, error) {
+	var it UserInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "location":
+			var err error
+			it.Location, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "abbr":
+			var err error
+			it.Abbr, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "email":
+			var err error
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "openhab":
+			var err error
+			it.Openhab, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3303,8 +3697,34 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createRoom":
 			out.Values[i] = ec._Mutation_createRoom(ctx, field)
-		case "addDevice":
-			out.Values[i] = ec._Mutation_addDevice(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateRoom":
+			out.Values[i] = ec._Mutation_updateRoom(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createDevice":
+			out.Values[i] = ec._Mutation_createDevice(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateDevice":
+			out.Values[i] = ec._Mutation_updateDevice(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createUser":
+			out.Values[i] = ec._Mutation_createUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateUser":
+			out.Values[i] = ec._Mutation_updateUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3844,18 +4264,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCreateDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx context.Context, v interface{}) (CreateDeviceInput, error) {
-	return ec.unmarshalInputCreateDeviceInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNCreateDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx context.Context, v interface{}) (*CreateDeviceInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNCreateDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) marshalNDevice2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx context.Context, sel ast.SelectionSet, v models.Device) graphql.Marshaler {
 	return ec._Device(ctx, sel, &v)
 }
@@ -3907,6 +4315,10 @@ func (ec *executionContext) marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgq
 	return ec._Device(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐDeviceInput(ctx context.Context, v interface{}) (DeviceInput, error) {
+	return ec.unmarshalInputDeviceInput(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalID(v)
 }
@@ -3933,6 +4345,10 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐLoginInput(ctx context.Context, v interface{}) (LoginInput, error) {
+	return ec.unmarshalInputLoginInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNRoom2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v models.Room) graphql.Marshaler {
@@ -3984,6 +4400,10 @@ func (ec *executionContext) marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlo
 		return graphql.Null
 	}
 	return ec._Room(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐRoomInput(ctx context.Context, v interface{}) (RoomInput, error) {
+	return ec.unmarshalInputRoomInput(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -4077,6 +4497,10 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlo
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐUserInput(ctx context.Context, v interface{}) (UserInput, error) {
+	return ec.unmarshalInputUserInput(ctx, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4305,18 +4729,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) unmarshalOAddDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐAddDeviceInput(ctx context.Context, v interface{}) (AddDeviceInput, error) {
-	return ec.unmarshalInputAddDeviceInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalOAddDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐAddDeviceInput(ctx context.Context, v interface{}) (*AddDeviceInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOAddDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐAddDeviceInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -4338,72 +4750,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
-}
-
-func (ec *executionContext) unmarshalOCreateDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx context.Context, v interface{}) (CreateDeviceInput, error) {
-	return ec.unmarshalInputCreateDeviceInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalOCreateDeviceInput2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx context.Context, v interface{}) ([]*CreateDeviceInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*CreateDeviceInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalOCreateDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalOCreateDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx context.Context, v interface{}) (*CreateDeviceInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOCreateDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateDeviceInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) unmarshalOCreateRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateRoomInput(ctx context.Context, v interface{}) (CreateRoomInput, error) {
-	return ec.unmarshalInputCreateRoomInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalOCreateRoomInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateRoomInput(ctx context.Context, v interface{}) (*CreateRoomInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOCreateRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐCreateRoomInput(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalODevice2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx context.Context, sel ast.SelectionSet, v models.Device) graphql.Marshaler {
-	return ec._Device(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalODevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx context.Context, sel ast.SelectionSet, v *models.Device) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Device(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalORoom2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v models.Room) graphql.Marshaler {
-	return ec._Room(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalORoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v *models.Room) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Room(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

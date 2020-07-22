@@ -66,7 +66,7 @@ func (d *DeviceRepo) GetDevicesByDeviceID(deviceID string) ([]*models.Device, er
 }
 
 // CreateDevice create device
-func (d *DeviceRepo) CreateDevice(deviceID primitive.ObjectID, device *models.Device) (*models.Device, error) {
+func (d *DeviceRepo) CreateDevice(device *models.Device) (*models.Device, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	_, err := d.DB.InsertOne(ctx, device)

@@ -49,7 +49,7 @@ func (d *RoomRepo) GetRoom(id string) (*models.Room, error) {
 }
 
 // CreateRoom create room
-func (d *RoomRepo) CreateRoom(roomID primitive.ObjectID, room *models.Room) (*models.Room, error) {
+func (d *RoomRepo) CreateRoom(room *models.Room) (*models.Room, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	_, err := d.DB.InsertOne(ctx, room)
