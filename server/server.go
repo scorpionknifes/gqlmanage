@@ -8,8 +8,12 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/rs/cors"
 	"github.com/scorpionknifes/gqlopenhab/dataloader"
 	"github.com/scorpionknifes/gqlopenhab/graphql"
+	customMiddleware "github.com/scorpionknifes/gqlopenhab/middleware"
 	"github.com/scorpionknifes/gqlopenhab/mongodb"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,7 +24,7 @@ const defaultPort = "8080"
 func main() {
 	// Connect to MongoDB
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://localhost/"))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URL")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,17 +32,35 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db := client.Database("tsatech")
+
+	db := client.Database(os.Getenv("MONGODB_DATABASE"))
+	var (
+		userRepo   = mongodb.UserRepo{DB: db.Collection("user")}
+		deviceRepo = mongodb.DeviceRepo{DB: db.Collection("device")}
+		roomRepo   = mongodb.RoomRepo{DB: db.Collection("room")}
+	)
+
+	router := chi.NewRouter()
+
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8000"},
+		AllowCredentials: true,
+		Debug:            true,
+	}).Handler)
+
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(customMiddleware.AuthMiddleware(userRepo))
 
 	c := graphql.Config{Resolvers: &graphql.Resolver{
-		UserRepo:   mongodb.UserRepo{DB: db.Collection("user")},
-		DeviceRepo: mongodb.DeviceRepo{DB: db.Collection("device")},
-		RoomRepo:   mongodb.RoomRepo{DB: db.Collection("room")},
+		UserRepo:   userRepo,
+		DeviceRepo: deviceRepo,
+		RoomRepo:   roomRepo,
 	}}
 
 	d := &dataloader.DBLoader{
-		RoomRepo:   mongodb.RoomRepo{DB: db.Collection("room")},
-		DeviceRepo: mongodb.DeviceRepo{DB: db.Collection("device")},
+		DeviceRepo: deviceRepo,
+		RoomRepo:   roomRepo,
 	}
 
 	port := os.Getenv("PORT")
