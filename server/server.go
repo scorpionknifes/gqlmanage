@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"os"
@@ -15,25 +14,13 @@ import (
 	"github.com/scorpionknifes/gqlopenhab/graphql"
 	customMiddleware "github.com/scorpionknifes/gqlopenhab/middleware"
 	"github.com/scorpionknifes/gqlopenhab/mongodb"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const defaultPort = "8080"
 
 func main() {
-	// Connect to MongoDB
+	db := connectDB()
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URL")))
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = client.Ping(context.Background(), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	db := client.Database(os.Getenv("MONGODB_DATABASE"))
 	var (
 		userRepo   = mongodb.UserRepo{DB: db.Collection("user")}
 		deviceRepo = mongodb.DeviceRepo{DB: db.Collection("device")}

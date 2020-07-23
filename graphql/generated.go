@@ -46,6 +46,16 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AuthResponse struct {
+		AuthToken func(childComplexity int) int
+		User      func(childComplexity int) int
+	}
+
+	AuthToken struct {
+		AccessToken func(childComplexity int) int
+		ExpiredAt   func(childComplexity int) int
+	}
+
 	Device struct {
 		CreatedDate  func(childComplexity int) int
 		ID           func(childComplexity int) int
@@ -61,13 +71,13 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateDevice func(childComplexity int, input DeviceInput) int
-		CreateRoom   func(childComplexity int, input RoomInput) int
-		CreateUser   func(childComplexity int, input UserInput) int
-		Login        func(childComplexity int, input LoginInput) int
-		UpdateDevice func(childComplexity int, id string, input DeviceInput) int
-		UpdateRoom   func(childComplexity int, id string, input RoomInput) int
-		UpdateUser   func(childComplexity int, id string, input UserInput) int
+		CreateDevice func(childComplexity int, input models.DeviceInput) int
+		CreateRoom   func(childComplexity int, input models.RoomInput) int
+		CreateUser   func(childComplexity int, input models.UserInput) int
+		Login        func(childComplexity int, input models.LoginInput) int
+		UpdateDevice func(childComplexity int, id string, input models.DeviceInput) int
+		UpdateRoom   func(childComplexity int, id string, input models.RoomInput) int
+		UpdateUser   func(childComplexity int, id string, input models.UserInput) int
 	}
 
 	Query struct {
@@ -89,11 +99,6 @@ type ComplexityRoot struct {
 		Username    func(childComplexity int) int
 	}
 
-	Token struct {
-		ExpireAt func(childComplexity int) int
-		Token    func(childComplexity int) int
-	}
-
 	User struct {
 		Abbr     func(childComplexity int) int
 		Email    func(childComplexity int) int
@@ -109,13 +114,13 @@ type DeviceResolver interface {
 	Room(ctx context.Context, obj *models.Device) (*models.Room, error)
 }
 type MutationResolver interface {
-	Login(ctx context.Context, input LoginInput) (*Token, error)
-	CreateRoom(ctx context.Context, input RoomInput) (*models.Room, error)
-	UpdateRoom(ctx context.Context, id string, input RoomInput) (*models.Room, error)
-	CreateDevice(ctx context.Context, input DeviceInput) (*models.Device, error)
-	UpdateDevice(ctx context.Context, id string, input DeviceInput) (*models.Device, error)
-	CreateUser(ctx context.Context, input UserInput) (*models.User, error)
-	UpdateUser(ctx context.Context, id string, input UserInput) (*models.User, error)
+	Login(ctx context.Context, input models.LoginInput) (*models.AuthResponse, error)
+	CreateRoom(ctx context.Context, input models.RoomInput) (*models.Room, error)
+	UpdateRoom(ctx context.Context, id string, input models.RoomInput) (*models.Room, error)
+	CreateDevice(ctx context.Context, input models.DeviceInput) (*models.Device, error)
+	UpdateDevice(ctx context.Context, id string, input models.DeviceInput) (*models.Device, error)
+	CreateUser(ctx context.Context, input models.UserInput) (*models.User, error)
+	UpdateUser(ctx context.Context, id string, input models.UserInput) (*models.User, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*models.User, error)
@@ -143,6 +148,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AuthResponse.authToken":
+		if e.complexity.AuthResponse.AuthToken == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.AuthToken(childComplexity), true
+
+	case "AuthResponse.user":
+		if e.complexity.AuthResponse.User == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.User(childComplexity), true
+
+	case "AuthToken.accessToken":
+		if e.complexity.AuthToken.AccessToken == nil {
+			break
+		}
+
+		return e.complexity.AuthToken.AccessToken(childComplexity), true
+
+	case "AuthToken.expiredAt":
+		if e.complexity.AuthToken.ExpiredAt == nil {
+			break
+		}
+
+		return e.complexity.AuthToken.ExpiredAt(childComplexity), true
 
 	case "Device.createdDate":
 		if e.complexity.Device.CreatedDate == nil {
@@ -231,7 +264,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateDevice(childComplexity, args["input"].(DeviceInput)), true
+		return e.complexity.Mutation.CreateDevice(childComplexity, args["input"].(models.DeviceInput)), true
 
 	case "Mutation.createRoom":
 		if e.complexity.Mutation.CreateRoom == nil {
@@ -243,7 +276,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateRoom(childComplexity, args["input"].(RoomInput)), true
+		return e.complexity.Mutation.CreateRoom(childComplexity, args["input"].(models.RoomInput)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -255,7 +288,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(UserInput)), true
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(models.UserInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -267,7 +300,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Login(childComplexity, args["input"].(LoginInput)), true
+		return e.complexity.Mutation.Login(childComplexity, args["input"].(models.LoginInput)), true
 
 	case "Mutation.updateDevice":
 		if e.complexity.Mutation.UpdateDevice == nil {
@@ -279,7 +312,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDevice(childComplexity, args["id"].(string), args["input"].(DeviceInput)), true
+		return e.complexity.Mutation.UpdateDevice(childComplexity, args["id"].(string), args["input"].(models.DeviceInput)), true
 
 	case "Mutation.updateRoom":
 		if e.complexity.Mutation.UpdateRoom == nil {
@@ -291,7 +324,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateRoom(childComplexity, args["id"].(string), args["input"].(RoomInput)), true
+		return e.complexity.Mutation.UpdateRoom(childComplexity, args["id"].(string), args["input"].(models.RoomInput)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -303,7 +336,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(UserInput)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(models.UserInput)), true
 
 	case "Query.device":
 		if e.complexity.Query.Device == nil {
@@ -410,20 +443,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Room.Username(childComplexity), true
-
-	case "Token.expireAt":
-		if e.complexity.Token.ExpireAt == nil {
-			break
-		}
-
-		return e.complexity.Token.ExpireAt(childComplexity), true
-
-	case "Token.token":
-		if e.complexity.Token.Token == nil {
-			break
-		}
-
-		return e.complexity.Token.Token(childComplexity), true
 
 	case "User.abbr":
 		if e.complexity.User.Abbr == nil {
@@ -541,6 +560,16 @@ var sources = []*ast.Source{
 	&ast.Source{Name: "schema.graphql", Input: `# GraphQL
 scalar Time
 
+type AuthToken {
+  accessToken: String!
+  expiredAt: Time!
+}
+
+type AuthResponse {
+  authToken: AuthToken!
+  user: User!
+}
+
 type User {
   id: ID!
   name: String!
@@ -573,11 +602,6 @@ type Device {
   type: Int!
   createdDate: Time!
   lastModified: Time!
-}
-
-type Token {
-  token: String!
-  expireAt: Int!
 }
 
 input LoginInput {
@@ -623,7 +647,7 @@ type Query {
 }
 
 type Mutation {
-  login(input: LoginInput!): Token!
+  login(input: LoginInput!): AuthResponse!
   createRoom(input: RoomInput!): Room!
   updateRoom(id: ID!, input: RoomInput!): Room!
   createDevice(input: DeviceInput!): Device!
@@ -642,9 +666,9 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createDevice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 DeviceInput
+	var arg0 models.DeviceInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐDeviceInput(ctx, tmp)
+		arg0, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -656,9 +680,9 @@ func (ec *executionContext) field_Mutation_createDevice_args(ctx context.Context
 func (ec *executionContext) field_Mutation_createRoom_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 RoomInput
+	var arg0 models.RoomInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐRoomInput(ctx, tmp)
+		arg0, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -670,9 +694,9 @@ func (ec *executionContext) field_Mutation_createRoom_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 UserInput
+	var arg0 models.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐUserInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -684,9 +708,9 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 LoginInput
+	var arg0 models.LoginInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐLoginInput(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐLoginInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -706,9 +730,9 @@ func (ec *executionContext) field_Mutation_updateDevice_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
-	var arg1 DeviceInput
+	var arg1 models.DeviceInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐDeviceInput(ctx, tmp)
+		arg1, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -728,9 +752,9 @@ func (ec *executionContext) field_Mutation_updateRoom_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
-	var arg1 RoomInput
+	var arg1 models.RoomInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐRoomInput(ctx, tmp)
+		arg1, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -750,9 +774,9 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
-	var arg1 UserInput
+	var arg1 models.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐUserInput(ctx, tmp)
+		arg1, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -852,6 +876,142 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AuthResponse_authToken(ctx context.Context, field graphql.CollectedField, obj *models.AuthResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AuthResponse",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AuthToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.AuthToken)
+	fc.Result = res
+	return ec.marshalNAuthToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AuthResponse_user(ctx context.Context, field graphql.CollectedField, obj *models.AuthResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AuthResponse",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AuthToken_accessToken(ctx context.Context, field graphql.CollectedField, obj *models.AuthToken) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AuthToken",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccessToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AuthToken_expiredAt(ctx context.Context, field graphql.CollectedField, obj *models.AuthToken) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AuthToken",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiredAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Device_id(ctx context.Context, field graphql.CollectedField, obj *models.Device) (ret graphql.Marshaler) {
 	defer func() {
@@ -1251,7 +1411,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, args["input"].(LoginInput))
+		return ec.resolvers.Mutation().Login(rctx, args["input"].(models.LoginInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1263,9 +1423,9 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Token)
+	res := resTmp.(*models.AuthResponse)
 	fc.Result = res
-	return ec.marshalNToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐToken(ctx, field.Selections, res)
+	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createRoom(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1292,7 +1452,7 @@ func (ec *executionContext) _Mutation_createRoom(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateRoom(rctx, args["input"].(RoomInput))
+		return ec.resolvers.Mutation().CreateRoom(rctx, args["input"].(models.RoomInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1333,7 +1493,7 @@ func (ec *executionContext) _Mutation_updateRoom(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateRoom(rctx, args["id"].(string), args["input"].(RoomInput))
+		return ec.resolvers.Mutation().UpdateRoom(rctx, args["id"].(string), args["input"].(models.RoomInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1374,7 +1534,7 @@ func (ec *executionContext) _Mutation_createDevice(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateDevice(rctx, args["input"].(DeviceInput))
+		return ec.resolvers.Mutation().CreateDevice(rctx, args["input"].(models.DeviceInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1415,7 +1575,7 @@ func (ec *executionContext) _Mutation_updateDevice(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateDevice(rctx, args["id"].(string), args["input"].(DeviceInput))
+		return ec.resolvers.Mutation().UpdateDevice(rctx, args["id"].(string), args["input"].(models.DeviceInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1456,7 +1616,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(UserInput))
+		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(models.UserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1497,7 +1657,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(UserInput))
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(models.UserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2044,74 +2204,6 @@ func (ec *executionContext) _Room_createdDate(ctx context.Context, field graphql
 	res := resTmp.(time.Time)
 	fc.Result = res
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Token_token(ctx context.Context, field graphql.CollectedField, obj *Token) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Token",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Token, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Token_expireAt(ctx context.Context, field graphql.CollectedField, obj *Token) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Token",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpireAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
@@ -3407,8 +3499,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputDeviceInput(ctx context.Context, obj interface{}) (DeviceInput, error) {
-	var it DeviceInput
+func (ec *executionContext) unmarshalInputDeviceInput(ctx context.Context, obj interface{}) (models.DeviceInput, error) {
+	var it models.DeviceInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3467,8 +3559,8 @@ func (ec *executionContext) unmarshalInputDeviceInput(ctx context.Context, obj i
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (LoginInput, error) {
-	var it LoginInput
+func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (models.LoginInput, error) {
+	var it models.LoginInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3491,8 +3583,8 @@ func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj in
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRoomInput(ctx context.Context, obj interface{}) (RoomInput, error) {
-	var it RoomInput
+func (ec *executionContext) unmarshalInputRoomInput(ctx context.Context, obj interface{}) (models.RoomInput, error) {
+	var it models.RoomInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3527,8 +3619,8 @@ func (ec *executionContext) unmarshalInputRoomInput(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (UserInput, error) {
-	var it UserInput
+func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (models.UserInput, error) {
+	var it models.UserInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3588,6 +3680,70 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var authResponseImplementors = []string{"AuthResponse"}
+
+func (ec *executionContext) _AuthResponse(ctx context.Context, sel ast.SelectionSet, obj *models.AuthResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthResponse")
+		case "authToken":
+			out.Values[i] = ec._AuthResponse_authToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user":
+			out.Values[i] = ec._AuthResponse_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var authTokenImplementors = []string{"AuthToken"}
+
+func (ec *executionContext) _AuthToken(ctx context.Context, sel ast.SelectionSet, obj *models.AuthToken) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authTokenImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthToken")
+		case "accessToken":
+			out.Values[i] = ec._AuthToken_accessToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "expiredAt":
+			out.Values[i] = ec._AuthToken_expiredAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
 
 var deviceImplementors = []string{"Device"}
 
@@ -3916,38 +4072,6 @@ func (ec *executionContext) _Room(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var tokenImplementors = []string{"Token"}
-
-func (ec *executionContext) _Token(ctx context.Context, sel ast.SelectionSet, obj *Token) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, tokenImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Token")
-		case "token":
-			out.Values[i] = ec._Token_token(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "expireAt":
-			out.Values[i] = ec._Token_expireAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *models.User) graphql.Marshaler {
@@ -4250,6 +4374,34 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNAuthResponse2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v models.AuthResponse) graphql.Marshaler {
+	return ec._AuthResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthResponse2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v *models.AuthResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AuthResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAuthToken2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthToken(ctx context.Context, sel ast.SelectionSet, v models.AuthToken) graphql.Marshaler {
+	return ec._AuthToken(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthToken(ctx context.Context, sel ast.SelectionSet, v *models.AuthToken) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AuthToken(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -4315,7 +4467,7 @@ func (ec *executionContext) marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgq
 	return ec._Device(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐDeviceInput(ctx context.Context, v interface{}) (DeviceInput, error) {
+func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceInput(ctx context.Context, v interface{}) (models.DeviceInput, error) {
 	return ec.unmarshalInputDeviceInput(ctx, v)
 }
 
@@ -4347,7 +4499,7 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐLoginInput(ctx context.Context, v interface{}) (LoginInput, error) {
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (models.LoginInput, error) {
 	return ec.unmarshalInputLoginInput(ctx, v)
 }
 
@@ -4402,7 +4554,7 @@ func (ec *executionContext) marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlo
 	return ec._Room(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐRoomInput(ctx context.Context, v interface{}) (RoomInput, error) {
+func (ec *executionContext) unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomInput(ctx context.Context, v interface{}) (models.RoomInput, error) {
 	return ec.unmarshalInputRoomInput(ctx, v)
 }
 
@@ -4432,20 +4584,6 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNToken2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐToken(ctx context.Context, sel ast.SelectionSet, v Token) graphql.Marshaler {
-	return ec._Token(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐToken(ctx context.Context, sel ast.SelectionSet, v *Token) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Token(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
@@ -4499,7 +4637,7 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlo
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋgraphqlᚐUserInput(ctx context.Context, v interface{}) (UserInput, error) {
+func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserInput(ctx context.Context, v interface{}) (models.UserInput, error) {
 	return ec.unmarshalInputUserInput(ctx, v)
 }
 

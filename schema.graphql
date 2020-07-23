@@ -1,6 +1,16 @@
 # GraphQL
 scalar Time
 
+type AuthToken {
+  accessToken: String!
+  expiredAt: Time!
+}
+
+type AuthResponse {
+  authToken: AuthToken!
+  user: User!
+}
+
 type User {
   id: ID!
   name: String!
@@ -33,11 +43,6 @@ type Device {
   type: Int!
   createdDate: Time!
   lastModified: Time!
-}
-
-type Token {
-  token: String!
-  expireAt: Int!
 }
 
 input LoginInput {
@@ -83,7 +88,7 @@ type Query {
 }
 
 type Mutation {
-  login(input: LoginInput!): Token!
+  login(input: LoginInput!): AuthResponse!
   createRoom(input: RoomInput!): Room!
   updateRoom(id: ID!, input: RoomInput!): Room!
   createDevice(input: DeviceInput!): Device!
