@@ -11,15 +11,16 @@ import (
 // User struct for one user
 type User struct {
 	ID       string `json:"id" bson:"_id,omitempty"`
-	Name     string `json:"name" bson:"name"`
-	Username string `json:"username" bson:"username"`
-	Password string `json:"password" bson:"password"`
-	Location string `json:"location" bson:"location"`
-	Abbr     string `json:"abbr" bson:"abbr"`
-	Email    string `json:"email" bson:"email"`
-	Openhab  string `json:"openhab" bson:"openhab"`
+	Name     string `json:"name" bson:"name,omitempty"`
+	Username string `json:"username" bson:"username,omitempty"`
+	Password string `json:"password" bson:"password,omitempty"`
+	Location string `json:"location" bson:"location,omitempty"`
+	Abbr     string `json:"abbr" bson:"abbr,omitempty"`
+	Email    string `json:"email" bson:"email,omitempty"`
+	Openhab  string `json:"openhab" bson:"openhab,omitempty"`
 }
 
+// HashPassword using bcrypt
 func (u *User) HashPassword(password string) error {
 	bytePassword := []byte(password)
 	passwordHash, err := bcrypt.GenerateFromPassword(bytePassword, bcrypt.DefaultCost)
@@ -32,6 +33,7 @@ func (u *User) HashPassword(password string) error {
 	return nil
 }
 
+// GenToken generate JWT token
 func (u *User) GenToken() (*AuthToken, error) {
 	expiredAt := time.Now().Add(time.Hour * 24 * 7) // a week
 

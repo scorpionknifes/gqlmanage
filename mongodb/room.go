@@ -69,9 +69,14 @@ func (d *RoomRepo) CreateRoom(room *models.Room) (*models.Room, error) {
 func (d *RoomRepo) UpdateRoom(id string, room *models.Room) (*models.Room, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	_, err := d.DB.UpdateOne(ctx, bson.M{"_id": id}, room)
+	ID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
+	_, err = d.DB.UpdateOne(ctx, bson.M{"_id": ID}, bson.M{"$set": room})
+	if err != nil {
+		return nil, err
+	}
+	room.ID = id
 	return room, nil
 }

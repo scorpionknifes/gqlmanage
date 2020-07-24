@@ -19,6 +19,10 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	// get .env config
+	getConfig()
+
+	// connect to db
 	db := connectDB()
 
 	var (

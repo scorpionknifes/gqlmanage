@@ -86,9 +86,14 @@ func (d *DeviceRepo) CreateDevice(device *models.Device) (*models.Device, error)
 func (d *DeviceRepo) UpdateDevice(id string, device *models.Device) (*models.Device, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	_, err := d.DB.UpdateOne(ctx, bson.M{"_id": id}, device)
+	ID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
+	_, err = d.DB.UpdateOne(ctx, bson.M{"_id": ID}, bson.M{"$set": device})
+	if err != nil {
+		return nil, err
+	}
+	device.ID = id
 	return device, nil
 }

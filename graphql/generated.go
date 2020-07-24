@@ -557,7 +557,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	&ast.Source{Name: "schema.graphql", Input: `# GraphQL
+	{Name: "schema.graphql", Input: `# GraphQL
 scalar Time
 
 type AuthToken {

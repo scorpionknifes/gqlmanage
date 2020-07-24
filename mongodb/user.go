@@ -53,6 +53,7 @@ func (d *UserRepo) GetUser(id string) (*models.User, error) {
 func (d *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+	user.HashPassword(user.Password)
 	result, err := d.DB.InsertOne(ctx, user)
 	if err != nil {
 		return nil, err
@@ -67,11 +68,19 @@ func (d *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 
 // UpdateUser update a User by id
 func (d *UserRepo) UpdateUser(id string, user *models.User) (*models.User, error) {
+	if user.Password != "" {
+		user.HashPassword(user.Password)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	_, err := d.DB.UpdateOne(ctx, bson.M{"_id": id}, user)
+	ID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
+	_, err = d.DB.UpdateOne(ctx, bson.M{"_id": ID}, bson.M{"$set": user})
+	if err != nil {
+		return nil, err
+	}
+	user.ID = id
 	return user, nil
 }
