@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/scorpionknifes/gqlmanage/middleware"
 	"github.com/scorpionknifes/gqlmanage/models"
 )
 
@@ -36,6 +37,10 @@ func (r *mutationResolver) Login(ctx context.Context, input models.LoginInput) (
 }
 
 func (r *mutationResolver) CreateRoom(ctx context.Context, input models.RoomInput) (*models.Room, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
 	room := &models.Room{
 		RoomNumber:  input.RoomNumber,
 		Memo:        input.Memo,
@@ -47,6 +52,10 @@ func (r *mutationResolver) CreateRoom(ctx context.Context, input models.RoomInpu
 }
 
 func (r *mutationResolver) UpdateRoom(ctx context.Context, id string, input models.RoomUpdate) (*models.Room, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
 	room, err := r.RoomRepo.GetRoom(id)
 	if err != nil {
 		return nil, err
@@ -57,6 +66,10 @@ func (r *mutationResolver) UpdateRoom(ctx context.Context, id string, input mode
 }
 
 func (r *mutationResolver) CreateDevice(ctx context.Context, input models.DeviceInput) (*models.Device, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
 	device := &models.Device{
 		RoomID:       input.RoomID,
 		Name:         input.Name,
@@ -71,6 +84,10 @@ func (r *mutationResolver) CreateDevice(ctx context.Context, input models.Device
 }
 
 func (r *mutationResolver) UpdateDevice(ctx context.Context, id string, input models.DeviceUpdate) (*models.Device, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
 	device, err := r.DeviceRepo.GetDevice(id)
 	if err != nil {
 		return nil, err
@@ -81,6 +98,10 @@ func (r *mutationResolver) UpdateDevice(ctx context.Context, id string, input mo
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input models.UserInput) (*models.User, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
 	user := &models.User{
 		Name:     input.Name,
 		Username: input.Username,
@@ -94,6 +115,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input models.UserInpu
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input models.UserUpdate) (*models.User, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
 	user, err := r.UserRepo.GetUser(id)
 	if err != nil {
 		return nil, err
