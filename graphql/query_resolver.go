@@ -3,7 +3,7 @@ package graphql
 import (
 	"context"
 
-	"github.com/scorpionknifes/gqlopenhab/models"
+	"github.com/scorpionknifes/gqlmanage/models"
 )
 
 // Query returns QueryResolver implementation.

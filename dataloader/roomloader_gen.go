@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/scorpionknifes/gqlopenhab/models"
+	"github.com/scorpionknifes/gqlmanage/models"
 )
 
 // RoomLoaderConfig captures the config to create a new RoomLoader

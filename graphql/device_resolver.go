@@ -3,8 +3,8 @@ package graphql
 import (
 	"context"
 
-	"github.com/scorpionknifes/gqlopenhab/dataloader"
-	"github.com/scorpionknifes/gqlopenhab/models"
+	"github.com/scorpionknifes/gqlmanage/dataloader"
+	"github.com/scorpionknifes/gqlmanage/models"
 )
 
 // Device returns DeviceResolver implementation.

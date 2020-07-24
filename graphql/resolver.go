@@ -3,7 +3,7 @@
 package graphql
 
 import (
-	"github.com/scorpionknifes/gqlopenhab/mongodb"
+	"github.com/scorpionknifes/gqlmanage/mongodb"
 )
 
 // This file will not be regenerated automatically.

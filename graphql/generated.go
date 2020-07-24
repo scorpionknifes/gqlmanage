@@ -13,7 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/scorpionknifes/gqlopenhab/models"
+	"github.com/scorpionknifes/gqlmanage/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -668,7 +668,7 @@ func (ec *executionContext) field_Mutation_createDevice_args(ctx context.Context
 	args := map[string]interface{}{}
 	var arg0 models.DeviceInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceInput(ctx, tmp)
+		arg0, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -682,7 +682,7 @@ func (ec *executionContext) field_Mutation_createRoom_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 models.RoomInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomInput(ctx, tmp)
+		arg0, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -696,7 +696,7 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 models.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -710,7 +710,7 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	args := map[string]interface{}{}
 	var arg0 models.LoginInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐLoginInput(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐLoginInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -732,7 +732,7 @@ func (ec *executionContext) field_Mutation_updateDevice_args(ctx context.Context
 	args["id"] = arg0
 	var arg1 models.DeviceInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceInput(ctx, tmp)
+		arg1, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -754,7 +754,7 @@ func (ec *executionContext) field_Mutation_updateRoom_args(ctx context.Context, 
 	args["id"] = arg0
 	var arg1 models.RoomInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomInput(ctx, tmp)
+		arg1, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -776,7 +776,7 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 	args["id"] = arg0
 	var arg1 models.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserInput(ctx, tmp)
+		arg1, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -908,7 +908,7 @@ func (ec *executionContext) _AuthResponse_authToken(ctx context.Context, field g
 	}
 	res := resTmp.(*models.AuthToken)
 	fc.Result = res
-	return ec.marshalNAuthToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthToken(ctx, field.Selections, res)
+	return ec.marshalNAuthToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐAuthToken(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _AuthResponse_user(ctx context.Context, field graphql.CollectedField, obj *models.AuthResponse) (ret graphql.Marshaler) {
@@ -942,7 +942,7 @@ func (ec *executionContext) _AuthResponse_user(ctx context.Context, field graphq
 	}
 	res := resTmp.(*models.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _AuthToken_accessToken(ctx context.Context, field graphql.CollectedField, obj *models.AuthToken) (ret graphql.Marshaler) {
@@ -1078,7 +1078,7 @@ func (ec *executionContext) _Device_room(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*models.Room)
 	fc.Result = res
-	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, field.Selections, res)
+	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoom(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Device_name(ctx context.Context, field graphql.CollectedField, obj *models.Device) (ret graphql.Marshaler) {
@@ -1425,7 +1425,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*models.AuthResponse)
 	fc.Result = res
-	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthResponse(ctx, field.Selections, res)
+	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐAuthResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createRoom(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1466,7 +1466,7 @@ func (ec *executionContext) _Mutation_createRoom(ctx context.Context, field grap
 	}
 	res := resTmp.(*models.Room)
 	fc.Result = res
-	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, field.Selections, res)
+	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoom(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateRoom(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1507,7 +1507,7 @@ func (ec *executionContext) _Mutation_updateRoom(ctx context.Context, field grap
 	}
 	res := resTmp.(*models.Room)
 	fc.Result = res
-	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, field.Selections, res)
+	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoom(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createDevice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1548,7 +1548,7 @@ func (ec *executionContext) _Mutation_createDevice(ctx context.Context, field gr
 	}
 	res := resTmp.(*models.Device)
 	fc.Result = res
-	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx, field.Selections, res)
+	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDevice(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateDevice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1589,7 +1589,7 @@ func (ec *executionContext) _Mutation_updateDevice(ctx context.Context, field gr
 	}
 	res := resTmp.(*models.Device)
 	fc.Result = res
-	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx, field.Selections, res)
+	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDevice(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1630,7 +1630,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*models.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1671,7 +1671,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*models.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1705,7 +1705,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*models.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1746,7 +1746,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*models.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_rooms(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1780,7 +1780,7 @@ func (ec *executionContext) _Query_rooms(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*models.Room)
 	fc.Result = res
-	return ec.marshalNRoom2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomᚄ(ctx, field.Selections, res)
+	return ec.marshalNRoom2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_room(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1821,7 +1821,7 @@ func (ec *executionContext) _Query_room(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*models.Room)
 	fc.Result = res
-	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, field.Selections, res)
+	return ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoom(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_devices(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1855,7 +1855,7 @@ func (ec *executionContext) _Query_devices(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.([]*models.Device)
 	fc.Result = res
-	return ec.marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceᚄ(ctx, field.Selections, res)
+	return ec.marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_device(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1896,7 +1896,7 @@ func (ec *executionContext) _Query_device(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*models.Device)
 	fc.Result = res
-	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx, field.Selections, res)
+	return ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDevice(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2101,7 +2101,7 @@ func (ec *executionContext) _Room_devices(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.([]*models.Device)
 	fc.Result = res
-	return ec.marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceᚄ(ctx, field.Selections, res)
+	return ec.marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Room_username(ctx context.Context, field graphql.CollectedField, obj *models.Room) (ret graphql.Marshaler) {
@@ -4374,11 +4374,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAuthResponse2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v models.AuthResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthResponse2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v models.AuthResponse) graphql.Marshaler {
 	return ec._AuthResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuthResponse2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v *models.AuthResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthResponse2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v *models.AuthResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4388,11 +4388,11 @@ func (ec *executionContext) marshalNAuthResponse2ᚖgithubᚗcomᚋscorpionknife
 	return ec._AuthResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthToken2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthToken(ctx context.Context, sel ast.SelectionSet, v models.AuthToken) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthToken2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐAuthToken(ctx context.Context, sel ast.SelectionSet, v models.AuthToken) graphql.Marshaler {
 	return ec._AuthToken(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuthToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐAuthToken(ctx context.Context, sel ast.SelectionSet, v *models.AuthToken) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthToken2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐAuthToken(ctx context.Context, sel ast.SelectionSet, v *models.AuthToken) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4416,11 +4416,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNDevice2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx context.Context, sel ast.SelectionSet, v models.Device) graphql.Marshaler {
+func (ec *executionContext) marshalNDevice2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDevice(ctx context.Context, sel ast.SelectionSet, v models.Device) graphql.Marshaler {
 	return ec._Device(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Device) graphql.Marshaler {
+func (ec *executionContext) marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Device) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4444,7 +4444,7 @@ func (ec *executionContext) marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifes�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx, sel, v[i])
+			ret[i] = ec.marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDevice(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4457,7 +4457,7 @@ func (ec *executionContext) marshalNDevice2ᚕᚖgithubᚗcomᚋscorpionknifes�
 	return ret
 }
 
-func (ec *executionContext) marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDevice(ctx context.Context, sel ast.SelectionSet, v *models.Device) graphql.Marshaler {
+func (ec *executionContext) marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDevice(ctx context.Context, sel ast.SelectionSet, v *models.Device) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4467,7 +4467,7 @@ func (ec *executionContext) marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgq
 	return ec._Device(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐDeviceInput(ctx context.Context, v interface{}) (models.DeviceInput, error) {
+func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx context.Context, v interface{}) (models.DeviceInput, error) {
 	return ec.unmarshalInputDeviceInput(ctx, v)
 }
 
@@ -4499,15 +4499,15 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (models.LoginInput, error) {
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (models.LoginInput, error) {
 	return ec.unmarshalInputLoginInput(ctx, v)
 }
 
-func (ec *executionContext) marshalNRoom2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v models.Room) graphql.Marshaler {
+func (ec *executionContext) marshalNRoom2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v models.Room) graphql.Marshaler {
 	return ec._Room(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRoom2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Room) graphql.Marshaler {
+func (ec *executionContext) marshalNRoom2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Room) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4531,7 +4531,7 @@ func (ec *executionContext) marshalNRoom2ᚕᚖgithubᚗcomᚋscorpionknifesᚋg
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx, sel, v[i])
+			ret[i] = ec.marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoom(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4544,7 +4544,7 @@ func (ec *executionContext) marshalNRoom2ᚕᚖgithubᚗcomᚋscorpionknifesᚋg
 	return ret
 }
 
-func (ec *executionContext) marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v *models.Room) graphql.Marshaler {
+func (ec *executionContext) marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v *models.Room) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4554,7 +4554,7 @@ func (ec *executionContext) marshalNRoom2ᚖgithubᚗcomᚋscorpionknifesᚋgqlo
 	return ec._Room(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐRoomInput(ctx context.Context, v interface{}) (models.RoomInput, error) {
+func (ec *executionContext) unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomInput(ctx context.Context, v interface{}) (models.RoomInput, error) {
 	return ec.unmarshalInputRoomInput(ctx, v)
 }
 
@@ -4586,11 +4586,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4614,7 +4614,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋscorpionknifesᚋg
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4627,7 +4627,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋscorpionknifesᚋg
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -4637,7 +4637,7 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlo
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlopenhabᚋmodelsᚐUserInput(ctx context.Context, v interface{}) (models.UserInput, error) {
+func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserInput(ctx context.Context, v interface{}) (models.UserInput, error) {
 	return ec.unmarshalInputUserInput(ctx, v)
 }
 

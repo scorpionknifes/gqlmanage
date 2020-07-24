@@ -10,10 +10,10 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/rs/cors"
-	"github.com/scorpionknifes/gqlopenhab/dataloader"
-	"github.com/scorpionknifes/gqlopenhab/graphql"
-	customMiddleware "github.com/scorpionknifes/gqlopenhab/middleware"
-	"github.com/scorpionknifes/gqlopenhab/mongodb"
+	"github.com/scorpionknifes/gqlmanage/dataloader"
+	"github.com/scorpionknifes/gqlmanage/graphql"
+	customMiddleware "github.com/scorpionknifes/gqlmanage/middleware"
+	"github.com/scorpionknifes/gqlmanage/mongodb"
 )
 
 const defaultPort = "8080"

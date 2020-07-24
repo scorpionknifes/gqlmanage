@@ -1,4 +1,4 @@
-module github.com/scorpionknifes/gqlopenhab
+module github.com/scorpionknifes/gqlmanage
 
 go 1.14
 

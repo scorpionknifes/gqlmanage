@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/scorpionknifes/gqlopenhab/models"
+	"github.com/scorpionknifes/gqlmanage/models"
 )
 
 // Mutation returns MutationResolver implementation.

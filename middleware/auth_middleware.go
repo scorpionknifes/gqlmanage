@@ -10,8 +10,8 @@ import (
 	"github.com/dgrijalva/jwt-go/request"
 	"github.com/pkg/errors"
 
-	"github.com/scorpionknifes/gqlopenhab/models"
-	"github.com/scorpionknifes/gqlopenhab/mongodb"
+	"github.com/scorpionknifes/gqlmanage/models"
+	"github.com/scorpionknifes/gqlmanage/mongodb"
 )
 
 type key string
