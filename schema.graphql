@@ -78,10 +78,41 @@ input DeviceInput {
   type: Int!
 }
 
+input UserUpdate {
+  name: String
+  username: String
+  password: String
+  location: String
+  abbr: String
+  email: String
+  openhab: String
+}
+
+input RoomUpdate {
+  roomNumber: String
+  memo: String
+  username: String
+  password: String
+}
+
+input DeviceUpdate {
+  name: String
+  model: String
+  macAddress: String
+  memo: String
+  serialNumber: String
+  status: Int
+  type: Int
+}
+
+input RoomFilter {
+    name: String
+}
+
 type Query {
   users: [User!]!
   user(id: ID!): User!
-  rooms: [Room!]!
+  rooms(filter: RoomFilter): [Room!]!
   room(id: ID!): Room!
   devices: [Device!]!
   device(id: ID!): Device!
@@ -90,9 +121,9 @@ type Query {
 type Mutation {
   login(input: LoginInput!): AuthResponse!
   createRoom(input: RoomInput!): Room!
-  updateRoom(id: ID!, input: RoomInput!): Room!
+  updateRoom(id: ID!, input: RoomUpdate!): Room!
   createDevice(input: DeviceInput!): Device!
-  updateDevice(id: ID!, input: DeviceInput!): Device!
+  updateDevice(id: ID!, input: DeviceUpdate!): Device!
   createUser(input: UserInput!): User!
-  updateUser(id: ID!, input: UserInput!): User!
+  updateUser(id: ID!, input: UserUpdate!): User!
 }

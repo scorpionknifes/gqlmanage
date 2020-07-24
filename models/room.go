@@ -11,3 +11,19 @@ type Room struct {
 	Password    string    `json:"password" bson:"password,omitempty"`
 	CreatedDate time.Time `json:"createdDate" bson:"created_date,omitempty"`
 }
+
+// Update convert RoomUpdate to struct
+func (d *Room) Update(input RoomUpdate) {
+	if input.RoomNumber != nil {
+		d.RoomNumber = *input.RoomNumber
+	}
+	if input.Memo != nil {
+		d.Memo = *input.Memo
+	}
+	if input.Username != nil {
+		d.Username = *input.Username
+	}
+	if input.Password != nil {
+		d.Password = *input.Password
+	}
+}

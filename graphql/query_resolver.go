@@ -19,7 +19,8 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 	return r.UserRepo.GetUser(id)
 }
 
-func (r *queryResolver) Rooms(ctx context.Context) ([]*models.Room, error) {
+func (r *queryResolver) Rooms(ctx context.Context, filter *models.RoomFilter) ([]*models.Room, error) {
+	// TODO
 	return r.RoomRepo.GetRooms()
 }
 

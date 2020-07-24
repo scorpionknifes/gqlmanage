@@ -61,3 +61,28 @@ func (u *User) GenToken() (*AuthToken, error) {
 		ExpiredAt:   expiredAt,
 	}, nil
 }
+
+// Update convert UserUpdate to struct
+func (u *User) Update(input UserUpdate) {
+	if input.Name != nil {
+		u.Name = *input.Name
+	}
+	if input.Username != nil {
+		u.Username = *input.Username
+	}
+	if input.Password != nil {
+		u.Password = *input.Password
+	}
+	if input.Location != nil {
+		u.Location = *input.Location
+	}
+	if input.Abbr != nil {
+		u.Abbr = *input.Abbr
+	}
+	if input.Email != nil {
+		u.Email = *input.Email
+	}
+	if input.Openhab != nil {
+		u.Openhab = *input.Openhab
+	}
+}

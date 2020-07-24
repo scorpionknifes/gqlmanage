@@ -75,16 +75,16 @@ type ComplexityRoot struct {
 		CreateRoom   func(childComplexity int, input models.RoomInput) int
 		CreateUser   func(childComplexity int, input models.UserInput) int
 		Login        func(childComplexity int, input models.LoginInput) int
-		UpdateDevice func(childComplexity int, id string, input models.DeviceInput) int
-		UpdateRoom   func(childComplexity int, id string, input models.RoomInput) int
-		UpdateUser   func(childComplexity int, id string, input models.UserInput) int
+		UpdateDevice func(childComplexity int, id string, input models.DeviceUpdate) int
+		UpdateRoom   func(childComplexity int, id string, input models.RoomUpdate) int
+		UpdateUser   func(childComplexity int, id string, input models.UserUpdate) int
 	}
 
 	Query struct {
 		Device  func(childComplexity int, id string) int
 		Devices func(childComplexity int) int
 		Room    func(childComplexity int, id string) int
-		Rooms   func(childComplexity int) int
+		Rooms   func(childComplexity int, filter *models.RoomFilter) int
 		User    func(childComplexity int, id string) int
 		Users   func(childComplexity int) int
 	}
@@ -116,16 +116,16 @@ type DeviceResolver interface {
 type MutationResolver interface {
 	Login(ctx context.Context, input models.LoginInput) (*models.AuthResponse, error)
 	CreateRoom(ctx context.Context, input models.RoomInput) (*models.Room, error)
-	UpdateRoom(ctx context.Context, id string, input models.RoomInput) (*models.Room, error)
+	UpdateRoom(ctx context.Context, id string, input models.RoomUpdate) (*models.Room, error)
 	CreateDevice(ctx context.Context, input models.DeviceInput) (*models.Device, error)
-	UpdateDevice(ctx context.Context, id string, input models.DeviceInput) (*models.Device, error)
+	UpdateDevice(ctx context.Context, id string, input models.DeviceUpdate) (*models.Device, error)
 	CreateUser(ctx context.Context, input models.UserInput) (*models.User, error)
-	UpdateUser(ctx context.Context, id string, input models.UserInput) (*models.User, error)
+	UpdateUser(ctx context.Context, id string, input models.UserUpdate) (*models.User, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*models.User, error)
 	User(ctx context.Context, id string) (*models.User, error)
-	Rooms(ctx context.Context) ([]*models.Room, error)
+	Rooms(ctx context.Context, filter *models.RoomFilter) ([]*models.Room, error)
 	Room(ctx context.Context, id string) (*models.Room, error)
 	Devices(ctx context.Context) ([]*models.Device, error)
 	Device(ctx context.Context, id string) (*models.Device, error)
@@ -312,7 +312,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDevice(childComplexity, args["id"].(string), args["input"].(models.DeviceInput)), true
+		return e.complexity.Mutation.UpdateDevice(childComplexity, args["id"].(string), args["input"].(models.DeviceUpdate)), true
 
 	case "Mutation.updateRoom":
 		if e.complexity.Mutation.UpdateRoom == nil {
@@ -324,7 +324,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateRoom(childComplexity, args["id"].(string), args["input"].(models.RoomInput)), true
+		return e.complexity.Mutation.UpdateRoom(childComplexity, args["id"].(string), args["input"].(models.RoomUpdate)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -336,7 +336,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(models.UserInput)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(models.UserUpdate)), true
 
 	case "Query.device":
 		if e.complexity.Query.Device == nil {
@@ -374,7 +374,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Rooms(childComplexity), true
+		args, err := ec.field_Query_rooms_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Rooms(childComplexity, args["filter"].(*models.RoomFilter)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -557,7 +562,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `# GraphQL
+	&ast.Source{Name: "schema.graphql", Input: `# GraphQL
 scalar Time
 
 type AuthToken {
@@ -637,10 +642,41 @@ input DeviceInput {
   type: Int!
 }
 
+input UserUpdate {
+  name: String
+  username: String
+  password: String
+  location: String
+  abbr: String
+  email: String
+  openhab: String
+}
+
+input RoomUpdate {
+  roomNumber: String
+  memo: String
+  username: String
+  password: String
+}
+
+input DeviceUpdate {
+  name: String
+  model: String
+  macAddress: String
+  memo: String
+  serialNumber: String
+  status: Int
+  type: Int
+}
+
+input RoomFilter {
+    name: String
+}
+
 type Query {
   users: [User!]!
   user(id: ID!): User!
-  rooms: [Room!]!
+  rooms(filter: RoomFilter): [Room!]!
   room(id: ID!): Room!
   devices: [Device!]!
   device(id: ID!): Device!
@@ -649,11 +685,11 @@ type Query {
 type Mutation {
   login(input: LoginInput!): AuthResponse!
   createRoom(input: RoomInput!): Room!
-  updateRoom(id: ID!, input: RoomInput!): Room!
+  updateRoom(id: ID!, input: RoomUpdate!): Room!
   createDevice(input: DeviceInput!): Device!
-  updateDevice(id: ID!, input: DeviceInput!): Device!
+  updateDevice(id: ID!, input: DeviceUpdate!): Device!
   createUser(input: UserInput!): User!
-  updateUser(id: ID!, input: UserInput!): User!
+  updateUser(id: ID!, input: UserUpdate!): User!
 }
 `, BuiltIn: false},
 }
@@ -730,9 +766,9 @@ func (ec *executionContext) field_Mutation_updateDevice_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
-	var arg1 models.DeviceInput
+	var arg1 models.DeviceUpdate
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx, tmp)
+		arg1, err = ec.unmarshalNDeviceUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceUpdate(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -752,9 +788,9 @@ func (ec *executionContext) field_Mutation_updateRoom_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
-	var arg1 models.RoomInput
+	var arg1 models.RoomUpdate
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomInput(ctx, tmp)
+		arg1, err = ec.unmarshalNRoomUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomUpdate(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -774,9 +810,9 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
-	var arg1 models.UserInput
+	var arg1 models.UserUpdate
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserInput(ctx, tmp)
+		arg1, err = ec.unmarshalNUserUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserUpdate(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -824,6 +860,20 @@ func (ec *executionContext) field_Query_room_args(ctx context.Context, rawArgs m
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_rooms_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.RoomFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		arg0, err = ec.unmarshalORoomFilter2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -1493,7 +1543,7 @@ func (ec *executionContext) _Mutation_updateRoom(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateRoom(rctx, args["id"].(string), args["input"].(models.RoomInput))
+		return ec.resolvers.Mutation().UpdateRoom(rctx, args["id"].(string), args["input"].(models.RoomUpdate))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1575,7 +1625,7 @@ func (ec *executionContext) _Mutation_updateDevice(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateDevice(rctx, args["id"].(string), args["input"].(models.DeviceInput))
+		return ec.resolvers.Mutation().UpdateDevice(rctx, args["id"].(string), args["input"].(models.DeviceUpdate))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1657,7 +1707,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(models.UserInput))
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(models.UserUpdate))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1764,9 +1814,16 @@ func (ec *executionContext) _Query_rooms(ctx context.Context, field graphql.Coll
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_rooms_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Rooms(rctx)
+		return ec.resolvers.Query().Rooms(rctx, args["filter"].(*models.RoomFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3559,6 +3616,60 @@ func (ec *executionContext) unmarshalInputDeviceInput(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeviceUpdate(ctx context.Context, obj interface{}) (models.DeviceUpdate, error) {
+	var it models.DeviceUpdate
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "model":
+			var err error
+			it.Model, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "macAddress":
+			var err error
+			it.MacAddress, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "memo":
+			var err error
+			it.Memo, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "serialNumber":
+			var err error
+			it.SerialNumber, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+			it.Status, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "type":
+			var err error
+			it.Type, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (models.LoginInput, error) {
 	var it models.LoginInput
 	var asMap = obj.(map[string]interface{})
@@ -3574,6 +3685,24 @@ func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj in
 		case "password":
 			var err error
 			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRoomFilter(ctx context.Context, obj interface{}) (models.RoomFilter, error) {
+	var it models.RoomFilter
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3610,6 +3739,42 @@ func (ec *executionContext) unmarshalInputRoomInput(ctx context.Context, obj int
 		case "password":
 			var err error
 			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRoomUpdate(ctx context.Context, obj interface{}) (models.RoomUpdate, error) {
+	var it models.RoomUpdate
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "roomNumber":
+			var err error
+			it.RoomNumber, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "memo":
+			var err error
+			it.Memo, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+			it.Password, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3664,6 +3829,60 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 		case "openhab":
 			var err error
 			it.Openhab, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserUpdate(ctx context.Context, obj interface{}) (models.UserUpdate, error) {
+	var it models.UserUpdate
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+			it.Password, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "location":
+			var err error
+			it.Location, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "abbr":
+			var err error
+			it.Abbr, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "email":
+			var err error
+			it.Email, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "openhab":
+			var err error
+			it.Openhab, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4471,6 +4690,10 @@ func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifes�
 	return ec.unmarshalInputDeviceInput(ctx, v)
 }
 
+func (ec *executionContext) unmarshalNDeviceUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceUpdate(ctx context.Context, v interface{}) (models.DeviceUpdate, error) {
+	return ec.unmarshalInputDeviceUpdate(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalID(v)
 }
@@ -4558,6 +4781,10 @@ func (ec *executionContext) unmarshalNRoomInput2githubᚗcomᚋscorpionknifesᚋ
 	return ec.unmarshalInputRoomInput(ctx, v)
 }
 
+func (ec *executionContext) unmarshalNRoomUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomUpdate(ctx context.Context, v interface{}) (models.RoomUpdate, error) {
+	return ec.unmarshalInputRoomUpdate(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -4639,6 +4866,10 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlm
 
 func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserInput(ctx context.Context, v interface{}) (models.UserInput, error) {
 	return ec.unmarshalInputUserInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNUserUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUserUpdate(ctx context.Context, v interface{}) (models.UserUpdate, error) {
+	return ec.unmarshalInputUserUpdate(ctx, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4888,6 +5119,41 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOInt2int(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOInt2int(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalORoomFilter2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomFilter(ctx context.Context, v interface{}) (models.RoomFilter, error) {
+	return ec.unmarshalInputRoomFilter(ctx, v)
+}
+
+func (ec *executionContext) unmarshalORoomFilter2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomFilter(ctx context.Context, v interface{}) (*models.RoomFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalORoomFilter2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐRoomFilter(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

@@ -27,9 +27,23 @@ type DeviceInput struct {
 	Type         int    `json:"type"`
 }
 
+type DeviceUpdate struct {
+	Name         *string `json:"name"`
+	Model        *string `json:"model"`
+	MacAddress   *string `json:"macAddress"`
+	Memo         *string `json:"memo"`
+	SerialNumber *string `json:"serialNumber"`
+	Status       *int    `json:"status"`
+	Type         *int    `json:"type"`
+}
+
 type LoginInput struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type RoomFilter struct {
+	Name *string `json:"name"`
 }
 
 type RoomInput struct {
@@ -37,6 +51,13 @@ type RoomInput struct {
 	Memo       string `json:"memo"`
 	Username   string `json:"username"`
 	Password   string `json:"password"`
+}
+
+type RoomUpdate struct {
+	RoomNumber *string `json:"roomNumber"`
+	Memo       *string `json:"memo"`
+	Username   *string `json:"username"`
+	Password   *string `json:"password"`
 }
 
 type UserInput struct {
@@ -47,4 +68,14 @@ type UserInput struct {
 	Abbr     string `json:"abbr"`
 	Email    string `json:"email"`
 	Openhab  string `json:"openhab"`
+}
+
+type UserUpdate struct {
+	Name     *string `json:"name"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
+	Location *string `json:"location"`
+	Abbr     *string `json:"abbr"`
+	Email    *string `json:"email"`
+	Openhab  *string `json:"openhab"`
 }
