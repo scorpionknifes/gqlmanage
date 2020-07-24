@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/scorpionknifes/gqlmanage/models"
@@ -49,6 +48,18 @@ func (d *UserRepo) GetUser(id string) (*models.User, error) {
 	return user, err
 }
 
+// GetUserByUsername get user by username
+func (d *UserRepo) GetUserByUsername(username string) (*models.User, error) {
+	var user *models.User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	result := d.DB.FindOne(ctx, bson.M{"username": username})
+	err := result.Decode(user)
+	return user, err
+}
+
 // CreateUser create user
 func (d *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -60,7 +71,7 @@ func (d *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	}
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return nil, errors.New("Bad ID")
+		return nil, errNoID
 	}
 	user.ID = oid.Hex()
 	return user, nil

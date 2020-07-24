@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/scorpionknifes/gqlmanage/models"
@@ -14,7 +13,26 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) Login(ctx context.Context, input models.LoginInput) (*models.AuthResponse, error) {
-	panic(fmt.Errorf("not implemented"))
+	user, err := r.UserRepo.GetUserByUsername(input.Username)
+
+	if err != nil {
+		return nil, errBadCredentials
+	}
+
+	err = user.ComparePassword(input.Password)
+	if err != nil {
+		return nil, errBadCredentials
+	}
+
+	token, err := user.GenToken()
+	if err != nil {
+		return nil, errUnknown
+	}
+
+	return &models.AuthResponse{
+		AuthToken: token,
+		User:      user,
+	}, nil
 }
 
 func (r *mutationResolver) CreateRoom(ctx context.Context, input models.RoomInput) (*models.Room, error) {

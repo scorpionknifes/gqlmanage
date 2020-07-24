@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/scorpionknifes/gqlmanage/models"
@@ -59,7 +58,7 @@ func (d *RoomRepo) CreateRoom(room *models.Room) (*models.Room, error) {
 	}
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return nil, errors.New("Bad ID")
+		return nil, errNoID
 	}
 	room.ID = oid.Hex()
 	return room, nil

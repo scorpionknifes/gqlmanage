@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/scorpionknifes/gqlmanage/models"
@@ -76,7 +75,7 @@ func (d *DeviceRepo) CreateDevice(device *models.Device) (*models.Device, error)
 	}
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return nil, errors.New("Bad ID")
+		return nil, errNoID
 	}
 	device.ID = oid.Hex()
 	return device, nil
