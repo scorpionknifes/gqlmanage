@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"log"
@@ -18,7 +18,8 @@ import (
 
 const defaultPort = "8080"
 
-func main() {
+// Init start server
+func Init() {
 	// get .env config
 	getConfig()
 

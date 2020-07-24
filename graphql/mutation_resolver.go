@@ -47,7 +47,11 @@ func (r *mutationResolver) CreateRoom(ctx context.Context, input models.RoomInpu
 }
 
 func (r *mutationResolver) UpdateRoom(ctx context.Context, id string, input models.RoomUpdate) (*models.Room, error) {
-	room := &models.Room{}
+	room, err := r.RoomRepo.GetRoom(id)
+	if err != nil {
+		return nil, err
+	}
+	room.ID = ""
 	room.Update(input)
 	return r.RoomRepo.UpdateRoom(id, room)
 }
@@ -67,7 +71,11 @@ func (r *mutationResolver) CreateDevice(ctx context.Context, input models.Device
 }
 
 func (r *mutationResolver) UpdateDevice(ctx context.Context, id string, input models.DeviceUpdate) (*models.Device, error) {
-	device := &models.Device{}
+	device, err := r.DeviceRepo.GetDevice(id)
+	if err != nil {
+		return nil, err
+	}
+	device.ID = ""
 	device.Update(input)
 	return r.DeviceRepo.UpdateDevice(id, device)
 }
@@ -86,7 +94,12 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input models.UserInpu
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input models.UserUpdate) (*models.User, error) {
-	user := &models.User{}
+	user, err := r.UserRepo.GetUser(id)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = ""
+	user.ID = ""
 	user.Update(input)
 	return r.UserRepo.UpdateUser(id, user)
 }

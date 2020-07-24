@@ -44,7 +44,7 @@ func (d *UserRepo) GetUser(id string) (*models.User, error) {
 	defer cancel()
 
 	result := d.DB.FindOne(ctx, bson.M{"_id": ID})
-	err = result.Decode(user)
+	err = result.Decode(&user)
 	return user, err
 }
 
@@ -56,7 +56,7 @@ func (d *UserRepo) GetUserByUsername(username string) (*models.User, error) {
 	defer cancel()
 
 	result := d.DB.FindOne(ctx, bson.M{"username": username})
-	err := result.Decode(user)
+	err := result.Decode(&user)
 	return user, err
 }
 
