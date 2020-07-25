@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // RoomRepo Collection
@@ -17,13 +18,32 @@ type RoomRepo struct {
 }
 
 // GetRooms get all rooms
-func (d *RoomRepo) GetRooms() ([]*models.Room, error) {
+func (d *RoomRepo) GetRooms(filter *models.RoomFilter, limit *int, offset *int) ([]*models.Room, error) {
 	var rooms []*models.Room
+
+	query := bson.M{}
+	options := options.Find()
+
+	if limit != nil {
+		options.SetLimit(int64(*limit))
+	}
+
+	if offset != nil {
+		options.SetSkip(int64(*offset))
+	}
+
+	if filter != nil {
+		query = bson.M{
+			"$text": bson.M{
+				"$search": filter,
+			},
+		}
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cursor, err := d.DB.Find(ctx, bson.M{})
+	cursor, err := d.DB.Find(ctx, query, options)
 	if err != nil {
 		return nil, err
 	}

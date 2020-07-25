@@ -84,7 +84,7 @@ type ComplexityRoot struct {
 		Device  func(childComplexity int, id string) int
 		Devices func(childComplexity int) int
 		Room    func(childComplexity int, id string) int
-		Rooms   func(childComplexity int, filter *models.RoomFilter) int
+		Rooms   func(childComplexity int, filter *models.RoomFilter, limit *int, offset *int) int
 		User    func(childComplexity int, id string) int
 		Users   func(childComplexity int) int
 	}
@@ -125,7 +125,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*models.User, error)
 	User(ctx context.Context, id string) (*models.User, error)
-	Rooms(ctx context.Context, filter *models.RoomFilter) ([]*models.Room, error)
+	Rooms(ctx context.Context, filter *models.RoomFilter, limit *int, offset *int) ([]*models.Room, error)
 	Room(ctx context.Context, id string) (*models.Room, error)
 	Devices(ctx context.Context) ([]*models.Device, error)
 	Device(ctx context.Context, id string) (*models.Device, error)
@@ -379,7 +379,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Rooms(childComplexity, args["filter"].(*models.RoomFilter)), true
+		return e.complexity.Query.Rooms(childComplexity, args["filter"].(*models.RoomFilter), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -676,7 +676,7 @@ input RoomFilter {
 type Query {
   users: [User!]!
   user(id: ID!): User!
-  rooms(filter: RoomFilter): [Room!]!
+  rooms(filter: RoomFilter, limit: Int = 10, offset: Int = 0): [Room!]!
   room(id: ID!): Room!
   devices: [Device!]!
   device(id: ID!): Device!
@@ -874,6 +874,22 @@ func (ec *executionContext) field_Query_rooms_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["filter"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg2
 	return args, nil
 }
 
@@ -1823,7 +1839,7 @@ func (ec *executionContext) _Query_rooms(ctx context.Context, field graphql.Coll
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Rooms(rctx, args["filter"].(*models.RoomFilter))
+		return ec.resolvers.Query().Rooms(rctx, args["filter"].(*models.RoomFilter), args["limit"].(*int), args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

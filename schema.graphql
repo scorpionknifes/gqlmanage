@@ -112,7 +112,7 @@ input RoomFilter {
 type Query {
   users: [User!]!
   user(id: ID!): User!
-  rooms(filter: RoomFilter): [Room!]!
+  rooms(filter: RoomFilter, limit: Int = 10, offset: Int = 0): [Room!]!
   room(id: ID!): Room!
   devices: [Device!]!
   device(id: ID!): Device!

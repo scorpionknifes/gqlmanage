@@ -28,13 +28,12 @@ func (r *queryResolver) User(ctx context.Context, id string) (*models.User, erro
 	return r.UserRepo.GetUser(id)
 }
 
-func (r *queryResolver) Rooms(ctx context.Context, filter *models.RoomFilter) ([]*models.Room, error) {
+func (r *queryResolver) Rooms(ctx context.Context, filter *models.RoomFilter, limit *int, offset *int) ([]*models.Room, error) {
 	_, err := middleware.GetCurrentUserFromCTX(ctx)
 	if err != nil {
 		return nil, errUnauthenticated
 	}
-	// TODO
-	return r.RoomRepo.GetRooms()
+	return r.RoomRepo.GetRooms(filter, limit, offset)
 }
 
 func (r *queryResolver) Room(ctx context.Context, id string) (*models.Room, error) {
