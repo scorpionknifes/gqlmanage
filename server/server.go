@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -44,27 +45,29 @@ func Init() {
 	router.Use(middleware.Logger)
 	router.Use(customMiddleware.AuthMiddleware(userRepo))
 
+	d := &dataloader.DBLoader{
+		DeviceRepo: deviceRepo,
+		RoomRepo:   roomRepo,
+	}
+	router.Use(dataloader.DataMiddleware(d))
+
 	c := graphql.Config{Resolvers: &graphql.Resolver{
 		UserRepo:   userRepo,
 		DeviceRepo: deviceRepo,
 		RoomRepo:   roomRepo,
 	}}
 
-	d := &dataloader.DBLoader{
-		DeviceRepo: deviceRepo,
-		RoomRepo:   roomRepo,
-	}
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graphql.NewExecutableSchema(c))
+	srv := handler.New(graphql.NewExecutableSchema(c))
+	srv.AddTransport(transport.POST{})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", dataloader.DataMiddleware(d, srv))
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
