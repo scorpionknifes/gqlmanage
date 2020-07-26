@@ -79,6 +79,8 @@ func (r *mutationResolver) CreateDevice(ctx context.Context, input models.Device
 		SerialNumber: input.SerialNumber,
 		Status:       input.Status,
 		Type:         input.Type,
+		CreatedDate:  time.Now(),
+		LastModified: time.Now(),
 	}
 	return r.DeviceRepo.CreateDevice(device)
 }

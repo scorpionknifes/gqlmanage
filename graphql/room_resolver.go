@@ -6,7 +6,7 @@ import (
 	"github.com/scorpionknifes/gqlmanage/models"
 )
 
-// Room returns RoomResolver implementaion.
+// Room returns RoomResolver implementation.
 func (r *Resolver) Room() RoomResolver { return &roomResolver{r} }
 
 type roomResolver struct{ *Resolver }

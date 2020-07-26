@@ -35,8 +35,18 @@ func Init() {
 	router := chi.NewRouter()
 
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{os.Getenv("CORS")},
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
+		Debug:            false,
 	}).Handler)
 
 	router.Use(middleware.RequestID)
@@ -65,6 +75,6 @@ func Init() {
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
-	log.Printf("connect to %s for GraphQL playground", os.Getenv("CORS"))
+	log.Printf("connect to %s for GraphQL playground", os.Getenv("CORS_DEFAULT"))
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

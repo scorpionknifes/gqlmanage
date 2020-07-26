@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/scorpionknifes/gqlmanage/models"
@@ -46,7 +45,6 @@ func (d *DeviceRepo) GetDevice(id string) (*models.Device, error) {
 
 	result := d.DB.FindOne(ctx, bson.M{"_id": ID})
 	err = result.Decode(&device)
-	log.Println(err)
 	return device, err
 }
 

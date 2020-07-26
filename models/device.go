@@ -21,23 +21,30 @@ type Device struct {
 func (d *Device) Update(input DeviceUpdate) {
 	if input.Name != nil {
 		d.Name = *input.Name
+		d.LastModified = time.Now()
 	}
 	if input.Model != nil {
 		d.Model = *input.Model
+		d.LastModified = time.Now()
 	}
 	if input.MacAddress != nil {
 		d.MacAddress = *input.MacAddress
+		d.LastModified = time.Now()
 	}
 	if input.Memo != nil {
 		d.Memo = *input.Memo
+		d.LastModified = time.Now()
 	}
 	if input.SerialNumber != nil {
 		d.SerialNumber = *input.SerialNumber
+		d.LastModified = time.Now()
 	}
 	if input.Status != nil {
 		d.Status = *input.Status
+		d.LastModified = time.Now()
 	}
 	if input.Type != nil {
 		d.Type = *input.Type
+		d.LastModified = time.Now()
 	}
 }

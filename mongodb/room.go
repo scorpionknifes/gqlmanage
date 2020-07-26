@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/scorpionknifes/gqlmanage/models"
@@ -66,7 +65,6 @@ func (d *RoomRepo) GetRoom(id string) (*models.Room, error) {
 
 	result := d.DB.FindOne(ctx, bson.M{"_id": ID})
 	err = result.Decode(&room)
-	log.Println(err)
 	return room, err
 }
 
