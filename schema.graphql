@@ -45,6 +45,13 @@ type Device {
   lastModified: Time!
 }
 
+type Email {
+  id: ID!
+  from: String!
+  to: String!
+  data: String!
+}
+
 input LoginInput {
   username: String!
   password: String!
@@ -76,6 +83,12 @@ input DeviceInput {
   serialNumber: String!
   status: Int!
   type: Int!
+}
+
+input EmailInput {
+  from: String!
+  to: String!
+  data: String!
 }
 
 input UserUpdate {
@@ -110,6 +123,8 @@ input RoomFilter {
 }
 
 type Query {
+  emails: [Email!]!
+  email(id: ID!): Email!
   users: [User!]!
   user(id: ID!): User!
   rooms(filter: RoomFilter, limit: Int = 10, offset: Int = 0): [Room!]!
@@ -126,4 +141,5 @@ type Mutation {
   updateDevice(id: ID!, input: DeviceUpdate!): Device!
   createUser(input: UserInput!): User!
   updateUser(id: ID!, input: UserUpdate!): User!
+  createEmail(input: EmailInput!): Email!
 }

@@ -37,6 +37,19 @@ type DeviceUpdate struct {
 	Type         *int    `json:"type"`
 }
 
+type Email struct {
+	ID   string `json:"id"`
+	From string `json:"from"`
+	To   string `json:"to"`
+	Data string `json:"data"`
+}
+
+type EmailInput struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+	Data string `json:"data"`
+}
+
 type LoginInput struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

@@ -130,3 +130,16 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input mode
 	user.Update(input)
 	return r.UserRepo.UpdateUser(id, user)
 }
+
+func (r *mutationResolver) CreateEmail(ctx context.Context, input models.EmailInput) (*models.Email, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
+	email := &models.Email{
+		From: input.From,
+		To:   input.To,
+		Data: input.Data,
+	}
+	return r.EmailRepo.CreateEmail(email)
+}

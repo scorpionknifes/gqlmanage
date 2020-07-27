@@ -15,4 +15,5 @@ type Resolver struct {
 	DeviceRepo mongodb.DeviceRepo
 	RoomRepo   mongodb.RoomRepo
 	UserRepo   mongodb.UserRepo
+	EmailRepo  mongodb.EmailRepo
 }

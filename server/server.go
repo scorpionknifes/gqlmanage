@@ -30,6 +30,7 @@ func Init() {
 		userRepo   = mongodb.UserRepo{DB: db.Collection("user")}
 		deviceRepo = mongodb.DeviceRepo{DB: db.Collection("device")}
 		roomRepo   = mongodb.RoomRepo{DB: db.Collection("room")}
+		emailRepo  = mongodb.EmailRepo{DB: db.Collection("email")}
 	)
 
 	router := chi.NewRouter()
@@ -63,6 +64,7 @@ func Init() {
 		UserRepo:   userRepo,
 		DeviceRepo: deviceRepo,
 		RoomRepo:   roomRepo,
+		EmailRepo:  emailRepo,
 	}}
 
 	port := os.Getenv("PORT")

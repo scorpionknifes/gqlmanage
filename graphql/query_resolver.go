@@ -59,3 +59,19 @@ func (r *queryResolver) Device(ctx context.Context, id string) (*models.Device, 
 	}
 	return r.DeviceRepo.GetDevice(id)
 }
+
+func (r *queryResolver) Email(ctx context.Context, id string) (*models.Email, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
+	return r.EmailRepo.GetEmail(id)
+}
+
+func (r *queryResolver) Emails(ctx context.Context) ([]*models.Email, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
+	return r.EmailRepo.GetEmails()
+}

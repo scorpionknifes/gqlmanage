@@ -70,8 +70,16 @@ type ComplexityRoot struct {
 		Type         func(childComplexity int) int
 	}
 
+	Email struct {
+		Data func(childComplexity int) int
+		From func(childComplexity int) int
+		ID   func(childComplexity int) int
+		To   func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateDevice func(childComplexity int, input models.DeviceInput) int
+		CreateEmail  func(childComplexity int, input models.EmailInput) int
 		CreateRoom   func(childComplexity int, input models.RoomInput) int
 		CreateUser   func(childComplexity int, input models.UserInput) int
 		Login        func(childComplexity int, input models.LoginInput) int
@@ -83,6 +91,8 @@ type ComplexityRoot struct {
 	Query struct {
 		Device  func(childComplexity int, id string) int
 		Devices func(childComplexity int) int
+		Email   func(childComplexity int, id string) int
+		Emails  func(childComplexity int) int
 		Room    func(childComplexity int, id string) int
 		Rooms   func(childComplexity int, filter *models.RoomFilter, limit *int, offset *int) int
 		User    func(childComplexity int, id string) int
@@ -121,8 +131,11 @@ type MutationResolver interface {
 	UpdateDevice(ctx context.Context, id string, input models.DeviceUpdate) (*models.Device, error)
 	CreateUser(ctx context.Context, input models.UserInput) (*models.User, error)
 	UpdateUser(ctx context.Context, id string, input models.UserUpdate) (*models.User, error)
+	CreateEmail(ctx context.Context, input models.EmailInput) (*models.Email, error)
 }
 type QueryResolver interface {
+	Emails(ctx context.Context) ([]*models.Email, error)
+	Email(ctx context.Context, id string) (*models.Email, error)
 	Users(ctx context.Context) ([]*models.User, error)
 	User(ctx context.Context, id string) (*models.User, error)
 	Rooms(ctx context.Context, filter *models.RoomFilter, limit *int, offset *int) ([]*models.Room, error)
@@ -254,6 +267,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Device.Type(childComplexity), true
 
+	case "Email.data":
+		if e.complexity.Email.Data == nil {
+			break
+		}
+
+		return e.complexity.Email.Data(childComplexity), true
+
+	case "Email.from":
+		if e.complexity.Email.From == nil {
+			break
+		}
+
+		return e.complexity.Email.From(childComplexity), true
+
+	case "Email.id":
+		if e.complexity.Email.ID == nil {
+			break
+		}
+
+		return e.complexity.Email.ID(childComplexity), true
+
+	case "Email.to":
+		if e.complexity.Email.To == nil {
+			break
+		}
+
+		return e.complexity.Email.To(childComplexity), true
+
 	case "Mutation.createDevice":
 		if e.complexity.Mutation.CreateDevice == nil {
 			break
@@ -265,6 +306,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateDevice(childComplexity, args["input"].(models.DeviceInput)), true
+
+	case "Mutation.createEmail":
+		if e.complexity.Mutation.CreateEmail == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createEmail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateEmail(childComplexity, args["input"].(models.EmailInput)), true
 
 	case "Mutation.createRoom":
 		if e.complexity.Mutation.CreateRoom == nil {
@@ -356,6 +409,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Devices(childComplexity), true
+
+	case "Query.email":
+		if e.complexity.Query.Email == nil {
+			break
+		}
+
+		args, err := ec.field_Query_email_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Email(childComplexity, args["id"].(string)), true
+
+	case "Query.emails":
+		if e.complexity.Query.Emails == nil {
+			break
+		}
+
+		return e.complexity.Query.Emails(childComplexity), true
 
 	case "Query.room":
 		if e.complexity.Query.Room == nil {
@@ -562,7 +634,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `# GraphQL
+	&ast.Source{Name: "schema.graphql", Input: `# GraphQL
 scalar Time
 
 type AuthToken {
@@ -609,6 +681,13 @@ type Device {
   lastModified: Time!
 }
 
+type Email {
+  id: ID!
+  from: String!
+  to: String!
+  data: String!
+}
+
 input LoginInput {
   username: String!
   password: String!
@@ -640,6 +719,12 @@ input DeviceInput {
   serialNumber: String!
   status: Int!
   type: Int!
+}
+
+input EmailInput {
+  from: String!
+  to: String!
+  data: String!
 }
 
 input UserUpdate {
@@ -674,6 +759,8 @@ input RoomFilter {
 }
 
 type Query {
+  emails: [Email!]!
+  email(id: ID!): Email!
   users: [User!]!
   user(id: ID!): User!
   rooms(filter: RoomFilter, limit: Int = 10, offset: Int = 0): [Room!]!
@@ -690,6 +777,7 @@ type Mutation {
   updateDevice(id: ID!, input: DeviceUpdate!): Device!
   createUser(input: UserInput!): User!
   updateUser(id: ID!, input: UserUpdate!): User!
+  createEmail(input: EmailInput!): Email!
 }
 `, BuiltIn: false},
 }
@@ -705,6 +793,20 @@ func (ec *executionContext) field_Mutation_createDevice_args(ctx context.Context
 	var arg0 models.DeviceInput
 	if tmp, ok := rawArgs["input"]; ok {
 		arg0, err = ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.EmailInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNEmailInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmailInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -836,6 +938,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 }
 
 func (ec *executionContext) field_Query_device_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_email_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1453,6 +1569,142 @@ func (ec *executionContext) _Device_lastModified(ctx context.Context, field grap
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Email_id(ctx context.Context, field graphql.CollectedField, obj *models.Email) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Email",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Email_from(ctx context.Context, field graphql.CollectedField, obj *models.Email) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Email",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.From, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Email_to(ctx context.Context, field graphql.CollectedField, obj *models.Email) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Email",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.To, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Email_data(ctx context.Context, field graphql.CollectedField, obj *models.Email) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Email",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1738,6 +1990,122 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	res := resTmp.(*models.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createEmail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createEmail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateEmail(rctx, args["input"].(models.EmailInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Email)
+	fc.Result = res
+	return ec.marshalNEmail2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_emails(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Emails(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Email)
+	fc.Result = res
+	return ec.marshalNEmail2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmailᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_email(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_email_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Email(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Email)
+	fc.Result = res
+	return ec.marshalNEmail2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmail(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3686,6 +4054,36 @@ func (ec *executionContext) unmarshalInputDeviceUpdate(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEmailInput(ctx context.Context, obj interface{}) (models.EmailInput, error) {
+	var it models.EmailInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "from":
+			var err error
+			it.From, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "to":
+			var err error
+			it.To, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "data":
+			var err error
+			it.Data, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (models.LoginInput, error) {
 	var it models.LoginInput
 	var asMap = obj.(map[string]interface{})
@@ -4066,6 +4464,48 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var emailImplementors = []string{"Email"}
+
+func (ec *executionContext) _Email(ctx context.Context, sel ast.SelectionSet, obj *models.Email) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, emailImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Email")
+		case "id":
+			out.Values[i] = ec._Email_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "from":
+			out.Values[i] = ec._Email_from(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "to":
+			out.Values[i] = ec._Email_to(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "data":
+			out.Values[i] = ec._Email_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4116,6 +4556,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createEmail":
+			out.Values[i] = ec._Mutation_createEmail(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4142,6 +4587,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "emails":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_emails(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "email":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_email(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "users":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -4708,6 +5181,61 @@ func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifes�
 
 func (ec *executionContext) unmarshalNDeviceUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceUpdate(ctx context.Context, v interface{}) (models.DeviceUpdate, error) {
 	return ec.unmarshalInputDeviceUpdate(ctx, v)
+}
+
+func (ec *executionContext) marshalNEmail2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmail(ctx context.Context, sel ast.SelectionSet, v models.Email) graphql.Marshaler {
+	return ec._Email(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNEmail2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmailᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Email) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNEmail2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmail(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNEmail2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmail(ctx context.Context, sel ast.SelectionSet, v *models.Email) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Email(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNEmailInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmailInput(ctx context.Context, v interface{}) (models.EmailInput, error) {
+	return ec.unmarshalInputEmailInput(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
