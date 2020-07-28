@@ -3,6 +3,7 @@
 package graphql
 
 import (
+	"github.com/go-redis/redis/v8"
 	"github.com/scorpionknifes/gqlmanage/mongodb"
 )
 
@@ -16,4 +17,5 @@ type Resolver struct {
 	RoomRepo   mongodb.RoomRepo
 	UserRepo   mongodb.UserRepo
 	EmailRepo  mongodb.EmailRepo
+	Redis      redis.Client
 }

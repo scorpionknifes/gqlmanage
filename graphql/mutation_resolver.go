@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/scorpionknifes/gqlmanage/middleware"
@@ -140,6 +141,14 @@ func (r *mutationResolver) CreateEmail(ctx context.Context, input models.EmailIn
 		From: input.From,
 		To:   input.To,
 		Data: input.Data,
+	}
+	emailJSON, err := json.Marshal(email)
+	if err != nil {
+		return nil, err
+	}
+	err = r.Redis.Publish(ctx, "email", emailJSON).Err()
+	if err != nil {
+		return nil, err
 	}
 	return r.EmailRepo.CreateEmail(email)
 }

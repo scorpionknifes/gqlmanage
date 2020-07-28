@@ -6,12 +6,10 @@ require (
 	github.com/99designs/gqlgen v0.11.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/go-redis/redis/v8 v8.0.0-beta.7 // indirect
+	github.com/go-redis/redis/v8 v8.0.0-beta.7
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/lab259/go-rscsrv v0.3.2 // indirect
-	github.com/lab259/go-rscsrv-redigo v1.1.1 // indirect
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0

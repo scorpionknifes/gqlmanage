@@ -26,6 +26,9 @@ func Init() {
 	// connect to db
 	db := connectDB()
 
+	// connect redis
+	rdb := connectRedis()
+
 	var (
 		userRepo   = mongodb.UserRepo{DB: db.Collection("user")}
 		deviceRepo = mongodb.DeviceRepo{DB: db.Collection("device")}
@@ -65,6 +68,7 @@ func Init() {
 		DeviceRepo: deviceRepo,
 		RoomRepo:   roomRepo,
 		EmailRepo:  emailRepo,
+		Redis:      *rdb,
 	}}
 
 	port := os.Getenv("PORT")

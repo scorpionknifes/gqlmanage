@@ -63,8 +63,3 @@ func (e *EmailRepo) CreateEmail(email *models.Email) (*models.Email, error) {
 	email.ID = oid.Hex()
 	return email, nil
 }
-
-// WatchEmail watch email
-func (e *EmailRepo) WatchEmail() (<-chan *models.Email, error) {
-	return nil, nil
-}
