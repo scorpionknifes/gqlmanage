@@ -143,3 +143,7 @@ type Mutation {
   updateUser(id: ID!, input: UserUpdate!): User!
   createEmail(input: EmailInput!): Email!
 }
+
+type Subscription {
+  newEmails: Email!
+}

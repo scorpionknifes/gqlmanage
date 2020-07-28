@@ -44,6 +44,8 @@ resolver:
 models:
   User:
     model: github.com/scorpionknifes/gqlmanage/models.User
+  Email: 
+    model: github.com/scorpionknifes/gqlmanage/models.Email
   Device:
     model: github.com/scorpionknifes/gqlmanage/models.Device
     fields:

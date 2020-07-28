@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -40,6 +41,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Room() RoomResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -109,6 +111,10 @@ type ComplexityRoot struct {
 		Username    func(childComplexity int) int
 	}
 
+	Subscription struct {
+		NewEmails func(childComplexity int) int
+	}
+
 	User struct {
 		Abbr     func(childComplexity int) int
 		Email    func(childComplexity int) int
@@ -145,6 +151,9 @@ type QueryResolver interface {
 }
 type RoomResolver interface {
 	Devices(ctx context.Context, obj *models.Room) ([]*models.Device, error)
+}
+type SubscriptionResolver interface {
+	NewEmails(ctx context.Context) (<-chan *models.Email, error)
 }
 
 type executableSchema struct {
@@ -521,6 +530,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Room.Username(childComplexity), true
 
+	case "Subscription.newEmails":
+		if e.complexity.Subscription.NewEmails == nil {
+			break
+		}
+
+		return e.complexity.Subscription.NewEmails(childComplexity), true
+
 	case "User.abbr":
 		if e.complexity.User.Abbr == nil {
 			break
@@ -602,6 +618,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			first = false
 			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next()
+
+			if data == nil {
+				return nil
+			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -778,6 +811,10 @@ type Mutation {
   createUser(input: UserInput!): User!
   updateUser(id: ID!, input: UserUpdate!): User!
   createEmail(input: EmailInput!): Email!
+}
+
+type Subscription {
+  newEmails: Email!
 }
 `, BuiltIn: false},
 }
@@ -2645,6 +2682,50 @@ func (ec *executionContext) _Room_createdDate(ctx context.Context, field graphql
 	res := resTmp.(time.Time)
 	fc.Result = res
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Subscription_newEmails(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Subscription",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().NewEmails(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func() graphql.Marshaler {
+		res, ok := <-resTmp.(<-chan *models.Email)
+		if !ok {
+			return nil
+		}
+		return graphql.WriterFunc(func(w io.Writer) {
+			w.Write([]byte{'{'})
+			graphql.MarshalString(field.Alias).MarshalGQL(w)
+			w.Write([]byte{':'})
+			ec.marshalNEmail2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐEmail(ctx, field.Selections, res).MarshalGQL(w)
+			w.Write([]byte{'}'})
+		})
+	}
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
@@ -4778,6 +4859,26 @@ func (ec *executionContext) _Room(ctx context.Context, sel ast.SelectionSet, obj
 		return graphql.Null
 	}
 	return out
+}
+
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "newEmails":
+		return ec._Subscription_newEmails(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
 }
 
 var userImplementors = []string{"User"}

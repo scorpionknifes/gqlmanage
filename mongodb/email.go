@@ -16,13 +16,13 @@ type EmailRepo struct {
 }
 
 // GetEmails get all emails
-func (d *EmailRepo) GetEmails() ([]*models.Email, error) {
+func (e *EmailRepo) GetEmails() ([]*models.Email, error) {
 	var emails []*models.Email
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cursor, err := d.DB.Find(ctx, bson.M{})
+	cursor, err := e.DB.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (d *EmailRepo) GetEmails() ([]*models.Email, error) {
 }
 
 // GetEmail get one email
-func (d *EmailRepo) GetEmail(id string) (*models.Email, error) {
+func (e *EmailRepo) GetEmail(id string) (*models.Email, error) {
 	var email *models.Email
 
 	ID, err := primitive.ObjectIDFromHex(id)
@@ -43,16 +43,16 @@ func (d *EmailRepo) GetEmail(id string) (*models.Email, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	result := d.DB.FindOne(ctx, bson.M{"_id": ID})
+	result := e.DB.FindOne(ctx, bson.M{"_id": ID})
 	err = result.Decode(&email)
 	return email, err
 }
 
 // CreateEmail create email
-func (d *EmailRepo) CreateEmail(email *models.Email) (*models.Email, error) {
+func (e *EmailRepo) CreateEmail(email *models.Email) (*models.Email, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	result, err := d.DB.InsertOne(ctx, email)
+	result, err := e.DB.InsertOne(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -62,4 +62,9 @@ func (d *EmailRepo) CreateEmail(email *models.Email) (*models.Email, error) {
 	}
 	email.ID = oid.Hex()
 	return email, nil
+}
+
+// WatchEmail watch email
+func (e *EmailRepo) WatchEmail() (<-chan *models.Email, error) {
+	return nil, nil
 }
