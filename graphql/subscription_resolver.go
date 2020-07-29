@@ -3,8 +3,8 @@ package graphql
 import (
 	"context"
 	"encoding/json"
-	"log"
 
+	"github.com/scorpionknifes/gqlmanage/middleware"
 	"github.com/scorpionknifes/gqlmanage/models"
 )
 
@@ -14,6 +14,10 @@ func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionRes
 type subscriptionResolver struct{ *Resolver }
 
 func (s *subscriptionResolver) NewEmails(ctx context.Context) (<-chan *models.Email, error) {
+	_, err := middleware.GetCurrentUserFromCTX(ctx)
+	if err != nil {
+		return nil, errUnauthenticated
+	}
 	channel := make(chan *models.Email, 1)
 	go func() {
 		sub := s.Redis.Subscribe(ctx, "email")
@@ -28,7 +32,7 @@ func (s *subscriptionResolver) NewEmails(ctx context.Context) (<-chan *models.Em
 				var email models.Email
 				err := json.Unmarshal([]byte(message.Payload), &email)
 				if err != nil {
-					log.Println(err)
+					sub.Close()
 					return
 				}
 				channel <- &email
