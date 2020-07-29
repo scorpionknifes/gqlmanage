@@ -50,6 +50,7 @@ type Email {
   from: String!
   to: String!
   data: String!
+  createdDate: Time!
 }
 
 input LoginInput {

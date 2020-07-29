@@ -73,10 +73,11 @@ type ComplexityRoot struct {
 	}
 
 	Email struct {
-		Data func(childComplexity int) int
-		From func(childComplexity int) int
-		ID   func(childComplexity int) int
-		To   func(childComplexity int) int
+		CreatedDate func(childComplexity int) int
+		Data        func(childComplexity int) int
+		From        func(childComplexity int) int
+		ID          func(childComplexity int) int
+		To          func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -275,6 +276,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Device.Type(childComplexity), true
+
+	case "Email.createdDate":
+		if e.complexity.Email.CreatedDate == nil {
+			break
+		}
+
+		return e.complexity.Email.CreatedDate(childComplexity), true
 
 	case "Email.data":
 		if e.complexity.Email.Data == nil {
@@ -719,6 +727,7 @@ type Email {
   from: String!
   to: String!
   data: String!
+  createdDate: Time!
 }
 
 input LoginInput {
@@ -1740,6 +1749,40 @@ func (ec *executionContext) _Email_data(ctx context.Context, field graphql.Colle
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Email_createdDate(ctx context.Context, field graphql.CollectedField, obj *models.Email) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Email",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4573,6 +4616,11 @@ func (ec *executionContext) _Email(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "data":
 			out.Values[i] = ec._Email_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdDate":
+			out.Values[i] = ec._Email_createdDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
