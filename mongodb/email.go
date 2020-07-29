@@ -52,7 +52,6 @@ func (e *EmailRepo) GetEmail(id string) (*models.Email, error) {
 func (e *EmailRepo) CreateEmail(email *models.Email) (*models.Email, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	email.CreatedDate = time.Now()
 	result, err := e.DB.InsertOne(ctx, email)
 	if err != nil {
 		return nil, err

@@ -138,9 +138,15 @@ func (r *mutationResolver) CreateEmail(ctx context.Context, input models.EmailIn
 		return nil, errUnauthenticated
 	}
 	email := &models.Email{
-		From: input.From,
-		To:   input.To,
-		Data: input.Data,
+		From:        input.From,
+		To:          input.To,
+		Data:        input.Data,
+		CreatedDate: time.Now(),
+	}
+
+	email, err := r.EmailRepo.CreateEmail(email)
+	if err != nil {
+		return nil, err
 	}
 	emailJSON, err := json.Marshal(email)
 	if err != nil {
@@ -150,5 +156,5 @@ func (r *mutationResolver) CreateEmail(ctx context.Context, input models.EmailIn
 	if err != nil {
 		return nil, err
 	}
-	return r.EmailRepo.CreateEmail(email)
+	return email, nil
 }
