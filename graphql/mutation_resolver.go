@@ -144,7 +144,7 @@ func (r *mutationResolver) CreateEmail(ctx context.Context, input models.EmailIn
 		CreatedDate: time.Now(),
 	}
 
-	email, err := r.EmailRepo.CreateEmail(email)
+	email, err = r.EmailRepo.CreateEmail(email)
 	if err != nil {
 		return nil, err
 	}
