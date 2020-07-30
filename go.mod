@@ -8,6 +8,7 @@ require (
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-redis/redis/v8 v8.0.0-beta.7
 	github.com/google/go-cmp v0.5.1 // indirect
+	github.com/gorilla/websocket v1.2.0
 	github.com/joho/godotenv v1.3.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.3.3 // indirect

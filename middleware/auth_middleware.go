@@ -54,6 +54,11 @@ var authHeaderExtractor = &request.PostExtractionFilter{
 	Filter:    stripBearerPrefixFromToken,
 }
 
+var graphqlHeaderExtractor = &request.PostExtractionFilter{
+	Extractor: request.HeaderExtractor{"Sec-Websocket-Protocol"},
+	Filter:    stripWebSocketHeader,
+}
+
 func stripBearerPrefixFromToken(token string) (string, error) {
 	bearer := "BEARER"
 
@@ -64,8 +69,19 @@ func stripBearerPrefixFromToken(token string) (string, error) {
 	return token, nil
 }
 
+func stripWebSocketHeader(token string) (string, error) {
+	head := "GRAPHQL-WS,"
+
+	if len(token) > len(head) && strings.ToUpper(token[0:len(head)]) == head {
+		return token[len(head)+1:], nil
+	}
+
+	return token, nil
+}
+
 var authExtractor = &request.MultiExtractor{
 	authHeaderExtractor,
+	graphqlHeaderExtractor,
 	request.ArgumentExtractor{"access_token"},
 }
 
@@ -81,7 +97,6 @@ func parseToken(r *http.Request) (*jwt.Token, error) {
 // GetCurrentUserFromCTX from context
 func GetCurrentUserFromCTX(ctx context.Context) (*models.User, error) {
 	errNoUserInContext := errors.New("no user in context")
-
 	if ctx.Value(CurrentUserKey) == nil {
 		return nil, errNoUserInContext
 	}

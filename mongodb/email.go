@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // EmailRepo Collection
@@ -22,7 +23,10 @@ func (e *EmailRepo) GetEmails() ([]*models.Email, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cursor, err := e.DB.Find(ctx, bson.M{})
+	options := options.Find()
+	options.SetSort(bson.D{primitive.E{Key: "created_date", Value: 1}})
+
+	cursor, err := e.DB.Find(ctx, bson.M{}, options)
 	if err != nil {
 		return nil, err
 	}
