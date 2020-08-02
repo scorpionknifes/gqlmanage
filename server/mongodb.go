@@ -9,7 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func connectDB() *mongo.Database {
+// ConnectDB connect to mongodb and return client
+func ConnectDB() *mongo.Database {
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URL")))
 	if err != nil {

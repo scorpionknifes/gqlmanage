@@ -2,6 +2,7 @@ package server
 
 import "github.com/joho/godotenv"
 
-func getConfig() {
+// GetConfig by using godotenv
+func GetConfig() {
 	godotenv.Load()
 }

@@ -26,10 +26,10 @@ const defaultPort = "8080"
 // Init start server
 func Init() {
 	// get .env config
-	getConfig()
+	GetConfig()
 
 	// connect to db
-	db := connectDB()
+	db := ConnectDB()
 
 	// connect redis
 	rdb := connectRedis()
