@@ -119,3 +119,25 @@ Example of repeated queries - room needs to be called multiple times for each de
   }
 }
 ```
+
+##### Subscriptions (with Redis)
+
+[Read Subscription with Redis](https://github.com/99designs/gqlgen/issues/846)
+[Read Passing token using Subscription](https://github.com/99designs/gqlgen/issues/691#issuecomment-503352009)
+
+Websocket subscription is secured with jwt by passing the token through "graphql-ws" header. A different jwt extract method is used.
+
+Redis pub/sub for running multiple instances.
+
+Example of using a jwt token:
+```js
+const subscriptionClient = new SubscriptionClient(
+    "ws://localhost:8000/query",
+    {
+        reconnect: true,
+    },
+    null,
+    [ "graphql-ws", 'JWT TOKEN' ])
+
+const wsLink = new WebSocketLink(subscriptionClient);
+```
