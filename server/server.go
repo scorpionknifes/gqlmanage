@@ -107,8 +107,7 @@ func Init() {
 		Cache: lru.New(100),
 	})
 
-	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	router.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/", playground.Handler("GraphQL playground", "/query/"))
 	router.Handle("/query", srv)
 
 	log.Printf("connect to %s for GraphQL playground", os.Getenv("CORS_DEFAULT"))
