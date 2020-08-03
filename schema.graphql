@@ -71,6 +71,7 @@ input UserInput {
 input RoomInput {
   roomNumber: String!
   memo: String!
+  devices: [DeviceInput!]!
   username: String!
   password: String!
 }

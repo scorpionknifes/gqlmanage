@@ -49,7 +49,26 @@ func (r *mutationResolver) CreateRoom(ctx context.Context, input models.RoomInpu
 		Password:    input.Password,
 		CreatedDate: time.Now(),
 	}
-	return r.RoomRepo.CreateRoom(room)
+	room, err = r.RoomRepo.CreateRoom(room)
+	if err != nil {
+		return nil, err
+	}
+	for _, device := range input.Devices {
+		d := &models.Device{
+			RoomID:       room.ID,
+			Name:         device.Name,
+			Model:        device.Model,
+			MacAddress:   device.MacAddress,
+			Memo:         device.Memo,
+			SerialNumber: device.SerialNumber,
+			Status:       device.Status,
+			Type:         device.Type,
+			CreatedDate:  time.Now(),
+			LastModified: time.Now(),
+		}
+		r.DeviceRepo.CreateDevice(d)
+	}
+	return room, nil
 }
 
 func (r *mutationResolver) UpdateRoom(ctx context.Context, id string, input models.RoomUpdate) (*models.Room, error) {

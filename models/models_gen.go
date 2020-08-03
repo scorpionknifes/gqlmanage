@@ -53,10 +53,11 @@ type RoomFilter struct {
 }
 
 type RoomInput struct {
-	RoomNumber string `json:"roomNumber"`
-	Memo       string `json:"memo"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
+	RoomNumber string         `json:"roomNumber"`
+	Memo       string         `json:"memo"`
+	Devices    []*DeviceInput `json:"devices"`
+	Username   string         `json:"username"`
+	Password   string         `json:"password"`
 }
 
 type RoomUpdate struct {

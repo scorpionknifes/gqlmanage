@@ -748,6 +748,7 @@ input UserInput {
 input RoomInput {
   roomNumber: String!
   memo: String!
+  devices: [DeviceInput!]!
   username: String!
   password: String!
 }
@@ -4268,6 +4269,12 @@ func (ec *executionContext) unmarshalInputRoomInput(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "devices":
+			var err error
+			it.Devices, err = ec.unmarshalNDeviceInput2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "username":
 			var err error
 			it.Username, err = ec.unmarshalNString2string(ctx, v)
@@ -5326,6 +5333,34 @@ func (ec *executionContext) marshalNDevice2ᚖgithubᚗcomᚋscorpionknifesᚋgq
 
 func (ec *executionContext) unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx context.Context, v interface{}) (models.DeviceInput, error) {
 	return ec.unmarshalInputDeviceInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNDeviceInput2ᚕᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInputᚄ(ctx context.Context, v interface{}) ([]*models.DeviceInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*models.DeviceInput, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNDeviceInput2ᚖgithubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx context.Context, v interface{}) (*models.DeviceInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalNDeviceInput2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceInput(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalNDeviceUpdate2githubᚗcomᚋscorpionknifesᚋgqlmanageᚋmodelsᚐDeviceUpdate(ctx context.Context, v interface{}) (models.DeviceUpdate, error) {
